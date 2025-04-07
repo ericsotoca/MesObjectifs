@@ -3,253 +3,581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion d'Objectifs de Vie</title>
+    <title>Mon Parcours d'Objectifs</title>
+    <!-- Ajout de Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --color-text: #333;
+            --color-bg: #f4f7f6;
+            --color-primary: #007bff; /* Bleu par défaut */
+            --color-light-gray: #e9ecef;
+            --color-white: #fff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: var(--font-main);
             margin: 0;
             padding: 0;
+            background-color: var(--color-bg);
+            color: var(--color-text);
             display: flex;
             flex-direction: column;
-            align-items: center;
+            min-height: 100vh;
+            align-items: center; /* Centre le contenu globalement */
         }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1em;
+
+        .container {
             width: 100%;
+            max-width: 800px; /* Augmenté pour plus d'espace */
+            margin: 1em auto;
+            padding: 1em;
+            box-sizing: border-box; /* Inclut padding dans la largeur */
+        }
+
+        /* --- Page d'accueil --- */
+        #welcome-screen {
             text-align: center;
+            background-color: var(--color-white);
+            padding: 3em 2em;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 5vh; /* Marge en haut */
         }
-        main {
-            padding: 1em;
-            width: 100%;
-            max-width: 600px;
-        }
-        .pilier {
-            margin-bottom: 2em;
-        }
-        .pilier h2 {
-            border-bottom: 2px solid;
-            padding-bottom: 0.5em;
-        }
-        .sous-pilier {
-            margin-bottom: 1em;
-        }
-        .sous-pilier h3 {
+
+        #welcome-screen h1 {
+            color: var(--color-primary);
             margin-bottom: 0.5em;
         }
-        .objectif {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5em;
+
+        #welcome-screen p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 1.5em;
+            color: #555;
         }
-        .objectif input {
-            flex-grow: 1;
-            padding: 0.5em;
-            margin-right: 0.5em;
-            cursor: pointer;
-        }
-        .objectif button {
-            background-color: #4CAF50;
+
+        #start-button {
+            background-color: var(--color-primary);
             color: white;
             border: none;
-            padding: 0.5em;
+            padding: 0.8em 1.5em;
+            font-size: 1.1em;
+            border-radius: var(--border-radius);
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        .objectif button:hover {
-            background-color: #45a049;
+
+        #start-button:hover {
+            background-color: #0056b3; /* Bleu plus foncé */
         }
-        .pilier[data-theme="sante"] h2 {
-            border-color: #FF6347;
+
+        /* --- Contenu de l'application (caché initialement) --- */
+        #app-content {
+            display: none; /* Caché par défaut */
+            background-color: var(--color-white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2em;
+            margin-top: 1em;
+            transition: background-color 0.5s ease; /* Transition douce pour la couleur */
         }
-        .pilier[data-theme="famille"] h2 {
-            border-color: #FFD700;
+
+        /* --- Header du Pilier Actuel --- */
+        #pillar-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1em;
+            margin-bottom: 1.5em;
+            border-radius: var(--border-radius) var(--border-radius) 0 0; /* Coins arrondis en haut */
+            color: white;
+            transition: background-color 0.5s ease;
         }
-        .pilier[data-theme="finances"] h2 {
-            border-color: #32CD32;
+
+        #pillar-header i {
+            font-size: 2em;
+            margin-right: 0.5em;
         }
-        .pilier[data-theme="carriere"] h2 {
-            border-color: #1E90FF;
+
+        #pillar-header h2 {
+            margin: 0;
+            font-size: 1.8em;
         }
-        .pilier[data-theme="loisirs"] h2 {
-            border-color: #FF69B4;
+
+        /* --- Contenu du Pilier --- */
+        #pillar-content {
+            margin-bottom: 2em;
         }
-        .pilier[data-theme="devperso"] h2 {
-            border-color: #8A2BE2;
+
+        .sous-pilier {
+            margin-bottom: 1.5em;
+            padding: 1em;
+            background-color: #f8f9fa; /* Fond légèrement différent */
+            border-left: 5px solid var(--color-primary); /* Bordure colorée */
+            border-radius: 4px;
+            transition: border-left-color 0.5s ease;
         }
-        .pilier[data-theme="relations"] h2 {
-            border-color: #FF4500;
+
+        .sous-pilier h3 {
+            margin-top: 0;
+            margin-bottom: 0.8em;
+            color: var(--color-primary);
+            transition: color 0.5s ease;
+            font-size: 1.3em;
         }
-        .pilier[data-theme="cadrevie"] h2 {
-            border-color: #00CED1;
+
+        .objectif {
+            display: flex;
+            align-items: center; /* Alignement vertical */
+            margin-bottom: 0.5em;
+            position: relative; /* Pour le tooltip */
         }
+
+        .objectif-label {
+            font-weight: bold;
+            width: 100px; /* Largeur fixe pour les labels */
+            margin-right: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .objectif input {
+            flex-grow: 1;
+            padding: 0.6em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: var(--font-main);
+            font-size: 1em;
+            cursor: pointer; /* Indique qu'on peut cliquer */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+         .objectif input:hover {
+            border-color: var(--color-primary);
+         }
+         .objectif input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+         }
+
+        /* --- Navigation --- */
+        #navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2em;
+            padding-top: 1em;
+            border-top: 1px solid var(--color-light-gray);
+        }
+
+        #navigation button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.7em 1.2em;
+            font-size: 1em;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+        }
+        #navigation button:hover:not(:disabled) {
+            filter: brightness(1.1); /* Éclaircit légèrement */
+        }
+        #navigation button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* --- Popup --- */
+        #popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border: 1px solid #ccc;
+            padding: 2em;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+        }
+        #popup textarea {
+            width: calc(100% - 20px); /* Ajustement pour padding/border */
+            padding: 10px;
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: var(--font-main);
+            font-size: 1em;
+        }
+        #popup button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 0.6em 1em;
+            margin: 0.2em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+         #popup button:hover {
+            filter: brightness(1.1);
+         }
+        #popup button.danger {
+            background-color: #dc3545; /* Rouge pour supprimer */
+        }
+        #popup button.secondary {
+            background-color: #6c757d; /* Gris pour fermer */
+        }
+
+        /* --- Thèmes de couleurs pour les piliers --- */
+        body[data-theme="sante"] { --color-primary: #FF6347; /* Tomato */ }
+        body[data-theme="famille"] { --color-primary: #FFD700; /* Gold */ }
+        body[data-theme="finances"] { --color-primary: #32CD32; /* LimeGreen */ }
+        body[data-theme="carriere"] { --color-primary: #1E90FF; /* DodgerBlue */ }
+        body[data-theme="loisirs"] { --color-primary: #FF69B4; /* HotPink */ }
+        body[data-theme="devperso"] { --color-primary: #8A2BE2; /* BlueViolet */ }
+        body[data-theme="relations"] { --color-primary: #FF4500; /* OrangeRed */ }
+        body[data-theme="cadrevie"] { --color-primary: #00CED1; /* DarkTurquoise */ }
+
+        /* Appliquer la couleur primaire dynamique */
+        #pillar-header, #navigation button, #popup button, #start-button {
+            background-color: var(--color-primary);
+        }
+         #navigation button:hover:not(:disabled), #popup button:hover, #start-button:hover {
+            filter: brightness(1.1);
+         }
+         #popup button.danger:hover { /* Garder le hover rouge spécifique */
+             background-color: #c82333;
+         }
+         #popup button.secondary:hover { /* Garder le hover gris spécifique */
+             background-color: #5a6268;
+         }
+
+        .sous-pilier {
+            border-left-color: var(--color-primary);
+        }
+        .sous-pilier h3 {
+            color: var(--color-primary);
+        }
+        .objectif input:hover, .objectif input:focus {
+            border-color: var(--color-primary);
+        }
+         .objectif input:focus {
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent); /* Ombre avec la couleur dynamique */
+         }
+
+        /* Media query pour petits écrans */
+        @media (max-width: 600px) {
+            .container {
+                padding: 0.5em;
+            }
+            #welcome-screen {
+                padding: 2em 1em;
+                margin-top: 2vh;
+            }
+            #app-content {
+                padding: 1em;
+            }
+            #pillar-header h2 {
+                font-size: 1.5em;
+            }
+             #pillar-header i {
+                font-size: 1.8em;
+            }
+            .sous-pilier h3 {
+                font-size: 1.1em;
+            }
+            .objectif {
+                flex-direction: column; /* Empile label et input */
+                align-items: flex-start;
+            }
+            .objectif-label {
+                width: auto; /* Prend la largeur nécessaire */
+                margin-bottom: 5px;
+            }
+            #popup {
+                width: 95%;
+            }
+            #navigation {
+                flex-direction: column;
+                gap: 10px; /* Espace entre les boutons empilés */
+            }
+            #navigation button {
+                width: 100%;
+            }
+        }
+
     </style>
 </head>
 <body>
-    <header>
-        <h1>Gestion d'Objectifs de Vie</h1>
-    </header>
-    <main>
-        <section id="piliers">
-            <!-- Les piliers et sous-piliers seront dynamiquement générés ici -->
-        </section>
-    </main>
-    <div id="popup" style="display:none; position:fixed; left:50%; top:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:2em; z-index:1000;">
-        <textarea id="popup-text" rows="4" cols="50"></textarea><br>
-        <button onclick="modifierObjectif()">Modifier</button>
-        <button onclick="supprimerObjectif()">Supprimer</button>
-        <button onclick="fermerPopup()">Fermer</button>
+
+    <div class="container">
+
+        <!-- Écran d'accueil -->
+        <div id="welcome-screen">
+            <h1><i class="fas fa-route"></i> Bienvenue sur Mon Parcours d'Objectifs !</h1>
+            <p>
+                Cette application vous aide à définir, suivre et ajuster vos objectifs personnels
+                dans les différents domaines importants de votre vie. <br>
+                Prenez un moment pour réfléchir à ce que vous souhaitez accomplir à court, moyen et long terme.
+            </p>
+            <button id="start-button">Commencer mon parcours <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Contenu principal de l'application -->
+        <div id="app-content">
+            <header id="pillar-header">
+                <i id="pillar-icon" class="fas fa-question-circle"></i> <!-- Icône par défaut -->
+                <h2 id="pillar-title">Titre du Pilier</h2>
+            </header>
+
+            <main id="pillar-content">
+                <!-- Le contenu du pilier actif sera injecté ici par JS -->
+            </main>
+
+            <nav id="navigation">
+                <button id="prev-button"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button id="next-button">Suivant <i class="fas fa-arrow-right"></i></button>
+            </nav>
+        </div>
+
     </div>
+
+    <!-- Popup pour modifier/supprimer -->
+    <div id="popup">
+        <h4>Modifier l'objectif</h4>
+        <textarea id="popup-text" rows="5" cols="50"></textarea><br>
+        <button onclick="modifierObjectif()">💾 Enregistrer</button>
+        <button class="danger" onclick="supprimerObjectif()">🗑️ Supprimer</button>
+        <button class="secondary" onclick="fermerPopup()">❌ Fermer</button>
+    </div>
+
     <script>
         const defaultPillarsData = [
-            { id: "sante", name: "Santé", theme: "sante", subPillars: [
-                { id: "sante-phy", name: "Physique", court: "Améliorer sa condition physique pour se sentir plus énergique au quotidien.", moyen: "Intégrer une routine d'exercice régulière.", long: "Atteindre un niveau de forme physique optimal." },
-                { id: "sante-men", name: "Mental", court: "Cultiver un état d'esprit positif pour mieux faire face aux défis de la vie.", moyen: "Pratiquer la méditation ou le journaling.", long: "Développer une résilience mentale durable." },
-                { id: "sante-som", name: "Sommeil", court: "Obtenir un sommeil réparateur pour maximiser son bien-être général.", moyen: "Établir une routine de sommeil régulière.", long: "Optimiser son environnement de sommeil pour un repos optimal." },
-                { id: "sante-nut", name: "Nutrition", court: "Adopter une alimentation équilibrée pour maintenir une bonne santé à long terme.", moyen: "Planifier des repas sains et équilibrés.", long: "Maintenir une alimentation saine comme mode de vie." },
-                { id: "sante-ene", name: "Énergie", court: "Augmenter son niveau d'énergie pour accomplir ses tâches quotidiennes avec efficacité.", moyen: "Identifier et éliminer les sources de fatigue.", long: "Maintenir un niveau d'énergie élevé grâce à des habitudes saines." }
+            { id: "sante", name: "Santé & Bien-être", theme: "sante", icon: "fas fa-heartbeat", subPillars: [
+                { id: "sante-phy", name: "Physique", court: "Améliorer ma condition physique.", moyen: "Intégrer une routine d'exercice régulière.", long: "Atteindre un niveau de forme optimal." },
+                { id: "sante-men", name: "Mental", court: "Cultiver un état d'esprit positif.", moyen: "Pratiquer la méditation/journaling.", long: "Développer une résilience mentale durable." },
+                { id: "sante-som", name: "Sommeil", court: "Obtenir un sommeil réparateur.", moyen: "Établir une routine de sommeil saine.", long: "Optimiser mon environnement de sommeil." },
+                { id: "sante-nut", name: "Nutrition", court: "Adopter une alimentation équilibrée.", moyen: "Planifier des repas sains.", long: "Maintenir une alimentation saine durablement." },
+                { id: "sante-ene", name: "Énergie", court: "Augmenter mon niveau d'énergie.", moyen: "Identifier et réduire les sources de fatigue.", long: "Maintenir une énergie élevée au quotidien." }
             ]},
-            { id: "famille", name: "Famille", theme: "famille", subPillars: [
-                { id: "fam-pro", name: "Proches", court: "Renforcer les liens avec ses proches pour créer un sentiment d'appartenance.", moyen: "Organiser des activités familiales régulières.", long: "Construire des relations familiales solides et durables." },
-                { id: "fam-com", name: "Communication", court: "Améliorer la communication familiale pour éviter les malentendus.", moyen: "Pratiquer l'écoute active au sein de la famille.", long: "Établir une communication ouverte et honnête." },
-                { id: "fam-tmp", name: "Temps passé", court: "Passer plus de moments de qualité ensemble pour renforcer les relations familiales.", moyen: "Planifier des sorties ou des activités en famille.", long: "Créer des souvenirs familiaux mémorables." },
-                { id: "fam-sou", name: "Soutien", court: "Offrir et recevoir un soutien mutuel pour surmonter les difficultés.", moyen: "Être présent pour les membres de la famille en cas de besoin.", long: "Construire un réseau de soutien familial fort." },
-                { id: "fam-har", name: "Harmonie", court: "Maintenir une atmosphère paisible et harmonieuse au sein de la famille.", moyen: "Résoudre les conflits de manière constructive.", long: "Créer un environnement familial serein et équilibré." }
+            { id: "famille", name: "Famille & Proches", theme: "famille", icon: "fas fa-users", subPillars: [
+                { id: "fam-pro", name: "Relations", court: "Renforcer les liens avec mes proches.", moyen: "Organiser des activités familiales régulières.", long: "Construire des relations solides et durables." },
+                { id: "fam-com", name: "Communication", court: "Améliorer la communication.", moyen: "Pratiquer l'écoute active.", long: "Établir une communication ouverte et honnête." },
+                { id: "fam-tmp", name: "Temps de qualité", court: "Passer plus de moments de qualité.", moyen: "Planifier des sorties/activités.", long: "Créer des souvenirs mémorables ensemble." },
+                { id: "fam-sou", name: "Soutien mutuel", court: "Offrir et recevoir du soutien.", moyen: "Être présent pour les autres.", long: "Construire un réseau de soutien familial fort." },
+                { id: "fam-har", name: "Harmonie", court: "Maintenir une atmosphère paisible.", moyen: "Résoudre les conflits constructivement.", long: "Créer un environnement familial serein." }
             ]},
-            { id: "finances", name: "Finances", theme: "finances", subPillars: [
-                { id: "fin-0", name: "Revenus", court: "Diversifier ses sources de revenus pour accroître sa sécurité financière.", moyen: "Explorer des opportunités d'investissement.", long: "Atteindre une indépendance financière." },
-                { id: "fin-1", name: "Épargne", court: "Constituer une épargne suffisante pour faire face aux imprévus.", moyen: "Établir un plan d'épargne régulier.", long: "Avoir une réserve financière conséquente." },
-                { id: "fin-2", name: "Dépenses", court: "Maîtriser ses dépenses pour vivre selon ses moyens.", moyen: "Suivre et ajuster son budget régulièrement.", long: "Maintenir un équilibre financier stable." },
-                { id: "fin-3", name: "Investissements", court: "Faire fructifier son argent grâce à des placements judicieux.", moyen: "Diversifier ses investissements pour minimiser les risques.", long: "Atteindre des objectifs financiers à long terme." },
-                { id: "fin-4", name: "Sécurité", court: "Protéger ses finances contre les risques futurs pour assurer sa tranquillité d'esprit.", moyen: "Souscrire à des assurances adaptées.", long: "Avoir une stratégie financière sécurisée." }
+             { id: "finances", name: "Finances Personnelles", theme: "finances", icon: "fas fa-coins", subPillars: [
+                { id: "fin-0", name: "Revenus", court: "Diversifier mes sources de revenus.", moyen: "Explorer des opportunités d'investissement.", long: "Atteindre une indépendance financière." },
+                { id: "fin-1", name: "Épargne", court: "Constituer une épargne de précaution.", moyen: "Établir un plan d'épargne régulier.", long: "Avoir une réserve financière conséquente." },
+                { id: "fin-2", name: "Dépenses", court: "Maîtriser mes dépenses.", moyen: "Suivre et ajuster mon budget.", long: "Maintenir un équilibre financier stable." },
+                { id: "fin-3", name: "Investissements", court: "Faire fructifier mon argent.", moyen: "Diversifier mes placements.", long: "Atteindre mes objectifs financiers à long terme." },
+                { id: "fin-4", name: "Sécurité", court: "Protéger mes finances.", moyen: "Souscrire à des assurances adaptées.", long: "Avoir une stratégie financière sécurisée." }
             ]},
-            { id: "carriere", name: "Carrière", theme: "carriere", subPillars: [
-                { id: "car-0", name: "Satisfaction", court: "Trouver un équilibre entre passion et profession pour s'épanouir dans son travail.", moyen: "Identifier des opportunités de carrière alignées avec ses intérêts.", long: "Atteindre une satisfaction professionnelle durable." },
-                { id: "car-1", name: "Progression", court: "Progresser régulièrement dans sa carrière pour atteindre ses ambitions professionnelles.", moyen: "Définir des étapes claires pour sa progression de carrière.", long: "Atteindre ses objectifs de carrière à long terme." },
-                { id: "car-2", name: "Équilibre", court: "Maintenir un équilibre entre vie professionnelle et vie personnelle pour préserver son bien-être.", moyen: "Établir des limites claires entre travail et vie personnelle.", long: "Avoir un équilibre de vie stable et satisfaisant." },
-                { id: "car-3", name: "Compétences", court: "Développer continuellement ses compétences pour rester pertinent dans son domaine.", moyen: "Suivre des formations ou des ateliers pour améliorer ses compétences.", long: "Devenir un expert reconnu dans son domaine." },
-                { id: "car-4", name: "Reconnaissance", court: "Recevoir une reconnaissance appropriée pour ses efforts et ses contributions.", moyen: "Communiquer ses réussites et ses contributions à son équipe ou à ses supérieurs.", long: "Être reconnu pour ses compétences et ses réalisations." }
+            { id: "carriere", name: "Carrière & Travail", theme: "carriere", icon: "fas fa-briefcase", subPillars: [
+                { id: "car-0", name: "Satisfaction", court: "Trouver plus de sens au travail.", moyen: "Identifier des opportunités alignées.", long: "Atteindre une satisfaction pro durable." },
+                { id: "car-1", name: "Progression", court: "Progresser dans ma carrière.", moyen: "Définir des étapes claires.", long: "Atteindre mes objectifs de carrière." },
+                { id: "car-2", name: "Équilibre vie pro/perso", court: "Améliorer l'équilibre.", moyen: "Établir des limites claires.", long: "Maintenir un équilibre sain et satisfaisant." },
+                { id: "car-3", name: "Compétences", court: "Développer mes compétences.", moyen: "Suivre des formations pertinentes.", long: "Devenir un expert reconnu." },
+                { id: "car-4", name: "Reconnaissance", court: "Obtenir plus de reconnaissance.", moyen: "Communiquer mes réussites.", long: "Être valorisé pour mes contributions." }
             ]},
-            { id: "loisirs", name: "Loisirs", theme: "loisirs", subPillars: [
-                { id: "loi-0", name: "Temps libre", court: "Consacrer du temps à ses loisirs pour se ressourcer pleinement.", moyen: "Planifier régulièrement des activités de loisirs.", long: "Intégrer les loisirs comme une partie essentielle de sa vie." },
-                { id: "loi-1", name: "Passions", court: "Explorer et approfondir ses passions pour enrichir sa vie personnelle.", moyen: "Découvrir de nouvelles passions ou approfondir celles existantes.", long: "Vivre une vie riche en passions et en intérêts variés." },
-                { id: "loi-2", name: "Détente", court: "Se détendre régulièrement pour réduire le stress et retrouver de l'énergie.", moyen: "Pratiquer des activités relaxantes régulièrement.", long: "Maintenir un niveau de stress bas grâce à des habitudes de détente." },
-                { id: "loi-3", name: "Créativité", court: "Stimuler sa créativité pour découvrir de nouvelles perspectives et idées.", moyen: "Participer à des activités créatives régulièrement.", long: "Développer sa créativité comme une compétence clé." },
-                { id: "loi-4", name: "Social", court: "Partager des moments de loisirs avec d'autres pour renforcer les liens sociaux.", moyen: "Organiser des activités sociales régulières.", long: "Avoir un réseau social fort et engagé." }
+            { id: "loisirs", name: "Loisirs & Passions", theme: "loisirs", icon: "fas fa-palette", subPillars: [
+                { id: "loi-0", name: "Temps libre", court: "Consacrer du temps à mes loisirs.", moyen: "Planifier des activités régulières.", long: "Intégrer les loisirs dans ma vie." },
+                { id: "loi-1", name: "Passions", court: "Explorer mes passions.", moyen: "Découvrir/approfondir des centres d'intérêt.", long: "Vivre une vie riche en passions." },
+                { id: "loi-2", name: "Détente", court: "Me détendre régulièrement.", moyen: "Pratiquer des activités relaxantes.", long: "Maintenir un faible niveau de stress." },
+                { id: "loi-3", name: "Créativité", court: "Stimuler ma créativité.", moyen: "Participer à des activités créatives.", long: "Exprimer ma créativité." },
+                { id: "loi-4", name: "Social", court: "Partager des loisirs avec d'autres.", moyen: "Organiser des activités sociales.", long: "Avoir un cercle social actif." }
             ]},
-            { id: "devperso", name: "Développement perso", theme: "devperso", subPillars: [
-                { id: "dev-0", name: "Apprentissage", court: "Acquérir de nouvelles connaissances pour évoluer continuellement.", moyen: "Suivre des cours ou des formations pour apprendre de nouvelles compétences.", long: "Devenir un apprenant à vie." },
-                { id: "dev-1", name: "Objectifs", court: "Définir et atteindre des objectifs clairs pour donner un sens à ses actions.", moyen: "Établir des objectifs SMART (spécifiques, mesurables, atteignables, réalistes, temporels).", long: "Atteindre ses objectifs de vie à long terme." },
-                { id: "dev-2", name: "Confiance", court: "Renforcer sa confiance en soi pour affronter les défis avec assurance.", moyen: "Pratiquer l'auto-compassion et la reconnaissance de ses réussites.", long: "Avoir une confiance en soi inébranlable." },
-                { id: "dev-3", name: "Résilience", court: "Développer sa résilience pour mieux rebondir après des épreuves.", moyen: "Apprendre des techniques de gestion du stress et de résilience.", long: "Devenir une personne résiliente face aux défis de la vie." },
-                { id: "dev-4", name: "Clarté", court: "Clarifier ses priorités pour prendre des décisions alignées avec ses valeurs.", moyen: "Réfléchir régulièrement à ses valeurs et à ses priorités.", long: "Avoir une vision claire de sa vie et de ses objectifs." }
+            { id: "devperso", name: "Développement Personnel", theme: "devperso", icon: "fas fa-seedling", subPillars: [
+                { id: "dev-0", name: "Apprentissage", court: "Acquérir de nouvelles connaissances.", moyen: "Suivre des cours/formations.", long: "Devenir un apprenant à vie." },
+                { id: "dev-1", name: "Objectifs personnels", court: "Définir des objectifs clairs.", moyen: "Établir des objectifs SMART.", long: "Atteindre mes objectifs de vie." },
+                { id: "dev-2", name: "Confiance en soi", court: "Renforcer ma confiance.", moyen: "Pratiquer l'auto-compassion.", long: "Avoir une confiance en soi solide." },
+                { id: "dev-3", name: "Résilience", court: "Développer ma résilience.", moyen: "Apprendre des techniques de gestion du stress.", long: "Rebondir face aux difficultés." },
+                { id: "dev-4", name: "Clarté & Vision", court: "Clarifier mes priorités.", moyen: "Réfléchir à mes valeurs.", long: "Avoir une vision claire de ma vie." }
             ]},
-            { id: "relations", name: "Relations sociales", theme: "relations", subPillars: [
-                { id: "rel-0", name: "Amis", court: "Entretenir des amitiés sincères pour bâtir un réseau de soutien solide.", moyen: "Prendre régulièrement des nouvelles de ses amis.", long: "Avoir des amitiés durables et significatives." },
-                { id: "rel-1", name: "Réseau", court: "Élargir son réseau relationnel pour ouvrir de nouvelles opportunités.", moyen: "Participer à des événements de réseautage ou rejoindre des groupes d'intérêt.", long: "Avoir un réseau relationnel diversifié et enrichissant." },
-                { id: "rel-2", name: "Écoute", court: "Pratiquer une écoute active pour mieux comprendre les autres.", moyen: "Développer ses compétences en communication et en écoute active.", long: "Être reconnu comme un interlocuteur attentif et empathique." },
-                { id: "rel-3", name: "Partage", court: "Partager des expériences positives pour renforcer les liens humains.", moyen: "Organiser des activités ou des sorties avec ses proches.", long: "Avoir des relations basées sur le partage et la solidarité." },
-                { id: "rel-4", name: "Qualité", court: "Prioriser la qualité des relations plutôt que leur quantité pour vivre des interactions profondes.", moyen: "Investir du temps dans les relations importantes.", long: "Avoir des relations profondes et épanouissantes." }
+            { id: "relations", name: "Relations Sociales", theme: "relations", icon: "fas fa-user-friends", subPillars: [
+                { id: "rel-0", name: "Amis", court: "Entretenir mes amitiés.", moyen: "Prendre régulièrement des nouvelles.", long: "Avoir des amitiés durables." },
+                { id: "rel-1", name: "Réseau", court: "Élargir mon réseau.", moyen: "Participer à des événements.", long: "Avoir un réseau diversifié." },
+                { id: "rel-2", name: "Écoute & Empathie", court: "Pratiquer l'écoute active.", moyen: "Développer mes compétences relationnelles.", long: "Être un interlocuteur attentif." },
+                { id: "rel-3", name: "Partage", court: "Partager des expériences positives.", moyen: "Organiser des activités communes.", long: "Cultiver des relations basées sur le partage." },
+                { id: "rel-4", name: "Qualité des relations", court: "Prioriser la qualité.", moyen: "Investir du temps dans les relations clés.", long: "Avoir des relations profondes." }
             ]},
-            { id: "cadrevie", name: "Cadre de vie", theme: "cadrevie", subPillars: [
-                { id: "cad-0", name: "Logement", court: "Créer un espace de vie confortable et fonctionnel pour se sentir chez soi.", moyen: "Aménager son espace de vie de manière ergonomique.", long: "Avoir un logement qui reflète son style de vie et ses besoins." },
-                { id: "cad-1", name: "Environnement", court: "Préserver un environnement sain et agréable pour améliorer son cadre de vie.", moyen: "Adopter des pratiques écologiques dans son quotidien.", long: "Vivre dans un environnement durable et respectueux de la nature." },
-                { id: "cad-2", name: "Organisation", court: "Maintenir un espace bien rangé pour gagner en efficacité et sérénité.", moyen: "Mettre en place des systèmes d'organisation pour son espace de vie.", long: "Avoir un espace de vie toujours bien organisé." },
-                { id: "cad-3", name: "Confort", court: "Optimiser son confort domestique pour se sentir détendu chez soi.", moyen: "Investir dans des éléments de confort pour son logement.", long: "Avoir un espace de vie confortable et accueillant." },
-                { id: "cad-4", name: "Esthétique", court: "Embellir son espace de vie pour refléter sa personnalité et son style.", moyen: "Décorer son espace de vie selon ses goûts.", long: "Avoir un espace de vie esthétiquement plaisant et personnalisé." }
+            { id: "cadrevie", name: "Cadre de Vie", theme: "cadrevie", icon: "fas fa-home", subPillars: [
+                { id: "cad-0", name: "Logement", court: "Créer un espace confortable.", moyen: "Aménager mon logement.", long: "Avoir un chez-moi idéal." },
+                { id: "cad-1", name: "Environnement", court: "Préserver mon environnement.", moyen: "Adopter des pratiques écologiques.", long: "Vivre dans un cadre sain et durable." },
+                { id: "cad-2", name: "Organisation", court: "Maintenir un espace rangé.", moyen: "Mettre en place des systèmes.", long: "Avoir un espace de vie organisé." },
+                { id: "cad-3", name: "Confort", court: "Optimiser mon confort.", moyen: "Investir dans des éléments de confort.", long: "Me sentir parfaitement bien chez moi." },
+                { id: "cad-4", name: "Esthétique", court: "Embellir mon espace.", moyen: "Décorer selon mes goûts.", long: "Avoir un espace qui me ressemble." }
             ]}
         ];
 
-        let currentObjectif = null;
+        let currentPillarIndex = 0;
+        let pillarsData = []; // Contiendra les données chargées ou par défaut
+        let currentObjectif = null; // Pour savoir quel objectif est édité
 
-        function afficherPiliersEtSousPiliers() {
-            const sectionPiliers = document.getElementById('piliers');
-            sectionPiliers.innerHTML = ''; // Clear previous content
-            defaultPillarsData.forEach((pilier, indexPilier) => {
-                const divPilier = document.createElement('div');
-                divPilier.classList.add('pilier');
-                divPilier.setAttribute('data-theme', pilier.theme);
-                divPilier.innerHTML = `<h2>${pilier.name}</h2>`;
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const appContent = document.getElementById('app-content');
+        const startButton = document.getElementById('start-button');
+        const pillarHeader = document.getElementById('pillar-header');
+        const pillarIcon = document.getElementById('pillar-icon');
+        const pillarTitle = document.getElementById('pillar-title');
+        const pillarContent = document.getElementById('pillar-content');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const popup = document.getElementById('popup');
+        const popupText = document.getElementById('popup-text');
 
-                pilier.subPillars.forEach((subPilier, indexSousPilier) => {
-                    const divSousPilier = document.createElement('div');
-                    divSousPilier.classList.add('sous-pilier');
-                    divSousPilier.innerHTML = `
-                        <h3>${subPilier.name}</h3>
-                        <div class="objectif">
-                            <input type="text" value="${subPilier.court}" ondblclick="ouvrirPopup('court', ${indexPilier}, ${indexSousPilier})">
-                        </div>
-                        <div class="objectif">
-                            <input type="text" value="${subPilier.moyen}" ondblclick="ouvrirPopup('moyen', ${indexPilier}, ${indexSousPilier})">
-                        </div>
-                        <div class="objectif">
-                            <input type="text" value="${subPilier.long}" ondblclick="ouvrirPopup('long', ${indexPilier}, ${indexSousPilier})">
-                        </div>
-                    `;
-                    divPilier.appendChild(divSousPilier);
-                });
-
-                sectionPiliers.appendChild(divPilier);
-            });
+        // Charge les données depuis localStorage ou utilise les données par défaut
+        function loadPillarsData() {
+            const storedData = localStorage.getItem('pillarsData');
+            if (storedData) {
+                try {
+                    const parsedData = JSON.parse(storedData);
+                    // Vérification simple de la structure
+                    if (Array.isArray(parsedData) && parsedData.length > 0 && parsedData[0].subPillars) {
+                        pillarsData = parsedData;
+                        console.log("Données chargées depuis localStorage.");
+                    } else {
+                        console.warn("Données localStorage invalides, utilisation des données par défaut.");
+                        pillarsData = JSON.parse(JSON.stringify(defaultPillarsData)); // Copie profonde
+                    }
+                } catch (e) {
+                    console.error("Erreur parsing localStorage:", e);
+                    pillarsData = JSON.parse(JSON.stringify(defaultPillarsData)); // Copie profonde
+                }
+            } else {
+                console.log("Pas de données localStorage, utilisation des données par défaut.");
+                pillarsData = JSON.parse(JSON.stringify(defaultPillarsData)); // Copie profonde
+            }
         }
 
+        // Sauvegarde les données dans localStorage
+        function savePillarsData() {
+            localStorage.setItem('pillarsData', JSON.stringify(pillarsData));
+            console.log("Données sauvegardées dans localStorage.");
+        }
+
+        // Affiche le pilier courant
+        function displayPillar(index) {
+            if (index < 0 || index >= pillarsData.length) return;
+
+            const pilier = pillarsData[index];
+            currentPillarIndex = index; // Met à jour l'index courant
+
+            // Applique le thème couleur au body
+            document.body.dataset.theme = pilier.theme;
+
+            // Met à jour le header du pilier
+            pillarIcon.className = pilier.icon; // Change l'icône
+            pillarTitle.textContent = pilier.name;
+
+            // Vide le contenu précédent
+            pillarContent.innerHTML = '';
+
+            // Construit le HTML pour le pilier actuel
+            pilier.subPillars.forEach((subPilier, indexSousPilier) => {
+                const divSousPilier = document.createElement('div');
+                divSousPilier.classList.add('sous-pilier');
+
+                // Utilisation des termes "Court", "Moyen", "Long" comme labels
+                divSousPilier.innerHTML = `
+                    <h3>${subPilier.name}</h3>
+                    <div class="objectif">
+                        <span class="objectif-label">Court terme:</span>
+                        <input type="text" value="${subPilier.court || ''}" readonly ondblclick="ouvrirPopup('court', ${index}, ${indexSousPilier})" placeholder="Double-cliquez pour éditer...">
+                    </div>
+                    <div class="objectif">
+                        <span class="objectif-label">Moyen terme:</span>
+                        <input type="text" value="${subPilier.moyen || ''}" readonly ondblclick="ouvrirPopup('moyen', ${index}, ${indexSousPilier})" placeholder="Double-cliquez pour éditer...">
+                    </div>
+                    <div class="objectif">
+                        <span class="objectif-label">Long terme:</span>
+                        <input type="text" value="${subPilier.long || ''}" readonly ondblclick="ouvrirPopup('long', ${index}, ${indexSousPilier})" placeholder="Double-cliquez pour éditer...">
+                    </div>
+                `;
+                pillarContent.appendChild(divSousPilier);
+            });
+
+            // Met à jour l'état des boutons de navigation
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === pillarsData.length - 1;
+        }
+
+        // Navigation
+        prevButton.addEventListener('click', () => {
+            if (currentPillarIndex > 0) {
+                displayPillar(currentPillarIndex - 1);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentPillarIndex < pillarsData.length - 1) {
+                displayPillar(currentPillarIndex + 1);
+            }
+        });
+
+        // Démarrage de l'application
+        startButton.addEventListener('click', () => {
+            welcomeScreen.style.display = 'none';
+            appContent.style.display = 'block';
+            displayPillar(currentPillarIndex); // Affiche le premier pilier
+        });
+
+        // Fonctions du Popup (Modifiées pour ne pas recharger la page)
         function ouvrirPopup(terme, indexPilier, indexSousPilier) {
             currentObjectif = { terme, indexPilier, indexSousPilier };
-            const subPilier = defaultPillarsData[indexPilier].subPillars[indexSousPilier];
-            document.getElementById('popup-text').value = subPilier[terme];
-            document.getElementById('popup').style.display = 'block';
+            const subPilier = pillarsData[indexPilier].subPillars[indexSousPilier];
+            popupText.value = subPilier[terme] || ''; // Met la valeur actuelle ou vide
+            popup.style.display = 'block';
+            popupText.focus(); // Met le focus sur le textarea
         }
 
         function modifierObjectif() {
             if (currentObjectif) {
                 const { terme, indexPilier, indexSousPilier } = currentObjectif;
-                const nouveauTexte = document.getElementById('popup-text').value;
-                defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = nouveauTexte;
-                localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
-                console.log("Objectif modifié et enregistré dans localStorage :", defaultPillarsData[indexPilier].subPillars[indexSousPilier]);
+                const nouveauTexte = popupText.value.trim(); // Enlève espaces superflus
+                pillarsData[indexPilier].subPillars[indexSousPilier][terme] = nouveauTexte;
+                savePillarsData(); // Sauvegarde les données
                 fermerPopup();
-                location.reload();
+                // Met à jour l'affichage SANS recharger la page
+                displayPillar(currentPillarIndex);
             }
         }
 
         function supprimerObjectif() {
             if (currentObjectif) {
                 const { terme, indexPilier, indexSousPilier } = currentObjectif;
-                defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = "";
-                localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
-                console.log("Objectif supprimé et enregistré dans localStorage :", defaultPillarsData[indexPilier].subPillars[indexSousPilier]);
+                pillarsData[indexPilier].subPillars[indexSousPilier][terme] = ""; // Met la valeur à vide
+                savePillarsData(); // Sauvegarde les données
                 fermerPopup();
-                location.reload();
+                // Met à jour l'affichage SANS recharger la page
+                displayPillar(currentPillarIndex);
             }
         }
 
         function fermerPopup() {
-            document.getElementById('popup').style.display = 'none';
+            popup.style.display = 'none';
+            currentObjectif = null; // Réinitialise l'objectif en cours d'édition
         }
 
+        // Initialisation au chargement de la page
         window.onload = function() {
-            const piliersLocalStorage = localStorage.getItem('piliers');
-            if (piliersLocalStorage) {
-                try {
-                    const parsedData = JSON.parse(piliersLocalStorage);
-                    console.log("Données récupérées du localStorage :", parsedData);
-                    // Vérifiez si les données sont un tableau et ont la bonne structure
-                    if (Array.isArray(parsedData) && parsedData.length === defaultPillarsData.length) {
-                        parsedData.forEach((pilier, index) => {
-                            if (defaultPillarsData[index]) {
-                                defaultPillarsData[index] = pilier;
-                            }
-                        });
-                    } else {
-                        console.error("Les données récupérées du localStorage ne sont pas dans le bon format.");
-                    }
-                } catch (e) {
-                    console.error("Erreur lors de la récupération des données du localStorage :", e);
-                }
-            }
-            console.log("Données des piliers après fusion :", defaultPillarsData);
-            afficherPiliersEtSousPiliers();
+            loadPillarsData();
+            // L'application commence sur l'écran d'accueil
+            welcomeScreen.style.display = 'block';
+            appContent.style.display = 'none';
         }
+
     </script>
+
 </body>
 </html>
