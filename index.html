@@ -2,263 +2,245 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#4A90E2">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="manifest" href="manifest.json">
-    <title>Objectifs de Vie</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion d'Objectifs de Vie</title>
     <style>
-        :root {
-            --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            --bg-primary: #ffffff; --bg-secondary: #f5f7fa; --text-primary: #2c3e50; --text-secondary: #6b7280;
-            --accent-primary: #4A90E2; --border-color: #e5e7eb; --shadow-color: rgba(0, 0, 0, 0.1);
-            --pillar-color-sante: #4CAF50; --pillar-color-famille: #FF9800; --pillar-color-finances: #FFC107;
-            --pillar-color-carriere: #607D8B; --pillar-color-loisirs: #9C27B0; --pillar-color-devperso: #2196F3;
-            --pillar-color-relations: #E91E63; --pillar-color-cadrevie: #3F51B5;
-            --spacing-s: 8px; --spacing-m: 16px; --spacing-l: 24px; --border-radius: 12px;
-        }
-
         body {
-            font-family: var(--font-family-sans); background-color: var(--bg-primary); color: var(--text-primary);
-            line-height: 1.6; margin: 0; padding: var(--spacing-m); min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f8ff;
         }
-
-        #app { max-width: 800px; margin: 0 auto; }
-
         header {
-            background-color: var(--accent-primary); color: white; padding: var(--spacing-m);
-            border-radius: var(--border-radius); margin-bottom: var(--spacing-l); text-align: center;
-            box-shadow: 0 2px 10px var(--shadow-color);
+            background-color: #4CAF50;
+            color: white;
+            padding: 1em;
+            width: 100%;
+            text-align: center;
         }
-        header h1 { font-size: 1.5rem; margin: 0; }
-
-        .view { display: none; animation: slideIn 0.5s ease-in-out; }
-        .view.active { display: block; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-
-        .welcome-view { text-align: center; padding: var(--spacing-l); }
-        .welcome-view h2 { color: var(--accent-primary); font-size: 1.8rem; margin-bottom: var(--spacing-m); }
-        .welcome-view p { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: var(--spacing-l); }
-        .btn-start { background-color: var(--accent-primary); color: white; border: none; padding: var(--spacing-m) var(--spacing-l);
-            border-radius: var(--border-radius); font-size: 1.1rem; cursor: pointer; transition: background-color 0.2s ease; }
-        .btn-start:hover { background-color: #357abd; }
-
-        .pillar-view { padding: var(--spacing-m); background-color: var(--bg-secondary); border-radius: var(--border-radius);
-            box-shadow: 0 2px 10px var(--shadow-color); }
-        .pillar-header { display: flex; align-items: center; gap: var(--spacing-m); margin-bottom: var(--spacing-l); }
-        .pillar-header svg { width: 32px; height: 32px; fill: currentColor; }
-        .pillar-header h2 { font-size: 1.6rem; margin: 0; }
-        .goal-list { list-style: none; padding: 0; }
-        .goal-item { padding: var(--spacing-s); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .goal-title { font-weight: 500; }
-        .goal-due-date { font-size: 0.9rem; color: var(--text-secondary); }
-
-        .navigation { display: flex; justify-content: space-between; margin-top: var(--spacing-l); }
-        .nav-btn { background-color: var(--accent-primary); color: white; border: none; padding: var(--spacing-s) var(--spacing-m);
-            border-radius: var(--border-radius); cursor: pointer; font-size: 1rem; transition: background-color 0.2s ease; }
-        .nav-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; opacity: 0.7; }
-        .nav-btn:hover:not(:disabled) { background-color: #357abd; }
+        main {
+            padding: 1em;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+        .pilier {
+            margin-bottom: 2em;
+        }
+        .pilier h2 {
+            border-bottom: 2px solid;
+            padding-bottom: 0.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pilier h2 img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+        .sous-pilier {
+            margin-bottom: 1em;
+        }
+        .sous-pilier h3 {
+            margin-bottom: 0.5em;
+        }
+        .objectif {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5em;
+        }
+        .objectif input {
+            flex-grow: 1;
+            padding: 0.5em;
+            margin-right: 0.5em;
+            cursor: pointer;
+        }
+        .objectif button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5em;
+            cursor: pointer;
+        }
+        .objectif button:hover {
+            background-color: #45a049;
+        }
+        .navigation {
+            margin-top: 2em;
+        }
+        .navigation button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5em 1em;
+            cursor: pointer;
+            margin: 0 0.5em;
+        }
+        .navigation button:hover {
+            background-color: #45a049;
+        }
+        .pilier[data-theme="sante"] h2 {
+            border-color: #FF6347;
+        }
+        .pilier[data-theme="famille"] h2 {
+            border-color: #FFD700;
+        }
+        .pilier[data-theme="finances"] h2 {
+            border-color: #32CD32;
+        }
+        .pilier[data-theme="carriere"] h2 {
+            border-color: #1E90FF;
+        }
+        .pilier[data-theme="loisirs"] h2 {
+            border-color: #FF69B4;
+        }
+        .pilier[data-theme="devperso"] h2 {
+            border-color: #8A2BE2;
+        }
+        .pilier[data-theme="relations"] h2 {
+            border-color: #FF4500;
+        }
+        .pilier[data-theme="cadrevie"] h2 {
+            border-color: #00CED1;
+        }
     </style>
 </head>
 <body>
-    <div id="app">
-        <header>
-            <h1>Objectifs de Vie</h1>
-        </header>
-
-        <main id="content">
-            <!-- Vue d'accueil -->
-            <div id="welcome-view" class="view active">
-                <h2>Bienvenue dans Objectifs de Vie</h2>
-                <p>Cette application vous aide à définir et suivre vos objectifs personnels à travers huit piliers essentiels de la vie. Explorez chaque pilier, fixez vos ambitions et progressez à votre rythme.</p>
-                <button class="btn-start">Commencer</button>
-            </div>
-
-            <!-- Vues des piliers (exemple pour Santé, généré dynamiquement pour les autres) -->
-            <div id="pillar-sante" class="view pillar-view" data-pillar-id="sante" style="display: none;">
-                <div class="pillar-header" style="color: var(--pillar-color-sante);">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    <h2>Santé</h2>
-                </div>
-                <ul class="goal-list" id="goals-sante"></ul>
-                <div class="navigation">
-                    <button class="nav-btn prev-btn" disabled>Précédent</button>
-                    <button class="nav-btn next-btn">Suivant</button>
-                </div>
-            </div>
-            <!-- Les autres piliers seront ajoutés dynamiquement par JS -->
-        </main>
+    <header>
+        <h1>Gestion d'Objectifs de Vie</h1>
+    </header>
+    <main>
+        <section id="accueil">
+            <h2>Bienvenue dans l'application de Gestion d'Objectifs de Vie</h2>
+            <p>Cette application vous aide à définir et à suivre vos objectifs dans différents domaines de votre vie.</p>
+            <button onclick="afficherPilier(0)">Commencer</button>
+        </section>
+        <section id="pilier" style="display:none;">
+            <!-- Les piliers seront dynamiquement générés ici -->
+        </section>
+        <div class="navigation">
+            <button onclick="afficherPilier(currentIndex - 1)">Précédent</button>
+            <button onclick="afficherPilier(currentIndex + 1)">Suivant</button>
+        </div>
+    </main>
+    <div id="popup" style="display:none; position:fixed; left:50%; top:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:2em; z-index:1000;">
+        <textarea id="popup-text" rows="4" cols="50"></textarea><br>
+        <button onclick="modifierObjectif()">Modifier</button>
+        <button onclick="supprimerObjectif()">Supprimer</button>
+        <button onclick="fermerPopup()">Fermer</button>
     </div>
-
     <script>
-        (() => {
-            const defaultPillarsData = [
-                { id: "sante", name: "Santé", theme: "sante", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>', subPillars: [
-                    { id: "sante-phy", name: "Physique", court: "Améliorer sa condition physique.", moyen: "Routine d'exercice régulière.", long: "Forme physique optimale." }
-                ]},
-                { id: "famille", name: "Famille", theme: "famille", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>' },
-                { id: "finances", name: "Finances", theme: "finances", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>' },
-                { id: "carriere", name: "Carrière", theme: "carriere", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>' },
-                { id: "loisirs", name: "Loisirs", theme: "loisirs", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>' },
-                { id: "devperso", name: "Développement perso", theme: "devperso", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>' },
-                { id: "relations", name: "Relations sociales", theme: "relations", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.5 16c-.74 0-1.45.2-2.06.56C10.5 15.58 9.31 15 8 15c-2.76 0-5 2.24-5 5s2.24 5 5 5c1.31 0 2.5-.58 3.44-1.56.61.36 1.32.56 2.06.56 2.76 0 5-2.24 5-5s-2.24-5-5-5zm-5.5 4c0-1.66 1.34-3 3-3s3 1.34 3 3-1.34 3-3 3-3-1.34-3-3zm5.5 0c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>' },
-                { id: "cadrevie", name: "Cadre de vie", theme: "cadrevie", icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>' }
-            ];
+        const defaultPillarsData = [
+            { id: "sante", name: "Santé", theme: "sante", icon: "🏥", subPillars: [
+                { id: "sante-phy", name: "Physique", court: "Améliorer sa condition physique pour se sentir plus énergique au quotidien.", moyen: "Intégrer une routine d'exercice régulière.", long: "Atteindre un niveau de forme physique optimal." },
+                { id: "sante-men", name: "Mental", court: "Cultiver un état d'esprit positif pour mieux faire face aux défis de la vie.", moyen: "Pratiquer la méditation ou le journaling.", long: "Développer une résilience mentale durable." },
+                { id: "sante-som", name: "Sommeil", court: "Obtenir un sommeil réparateur pour maximiser son bien-être général.", moyen: "Établir une routine de sommeil régulière.", long: "Optimiser son environnement de sommeil pour un repos optimal." },
+                { id: "sante-nut", name: "Nutrition", court: "Adopter une alimentation équilibrée pour maintenir une bonne santé à long terme.", moyen: "Planifier des repas sains et équilibrés.", long: "Maintenir une alimentation saine comme mode de vie." },
+                { id: "sante-ene", name: "Énergie", court: "Augmenter son niveau d'énergie pour accomplir ses tâches quotidiennes avec efficacité.", moyen: "Identifier et éliminer les sources de fatigue.", long: "Maintenir un niveau d'énergie élevé grâce à des habitudes saines." }
+            ]},
+            { id: "famille", name: "Famille", theme: "famille", icon: "👨‍👩‍👦", subPillars: [
+                { id: "fam-pro", name: "Proches", court: "Renforcer les liens avec ses proches pour créer un sentiment d'appartenance.", moyen: "Organiser des activités familiales régulières.", long: "Construire des relations familiales solides et durables." },
+                { id: "fam-com", name: "Communication", court: "Améliorer la communication familiale pour éviter les malentendus.", moyen: "Pratiquer l'écoute active au sein de la famille.", long: "Établir une communication ouverte et honnête." },
+                { id: "fam-tmp", name: "Temps passé", court: "Passer plus de moments de qualité ensemble pour renforcer les relations familiales.", moyen: "Planifier des sorties ou des activités en famille.", long: "Créer des souvenirs familiaux mémorables." },
+                { id: "fam-sou", name: "Soutien", court: "Offrir et recevoir un soutien mutuel pour surmonter les difficultés.", moyen: "Être présent pour les membres de la famille en cas de besoin.", long: "Construire un réseau de soutien familial fort." },
+                { id: "fam-har", name: "Harmonie", court: "Maintenir une atmosphère paisible et harmonieuse au sein de la famille.", moyen: "Résoudre les conflits de manière constructive.", long: "Créer un environnement familial serein et équilibré." }
+            ]},
+            // Ajoutez les autres piliers ici...
+        ];
 
-            const Store = {
-                appData: { pillars: defaultPillarsData, goals: [] },
+        let currentIndex = 0;
+        let currentObjectif = null;
 
-                load() {
-                    const savedData = localStorage.getItem('piliersDeVieData');
-                    if (savedData) {
-                        try {
-                            this.appData = JSON.parse(savedData);
-                        } catch (error) {
-                            console.error('Erreur lors du chargement des données :', error);
-                            this.resetToDefaultsWithGoals();
-                        }
-                    } else {
-                        this.resetToDefaultsWithGoals();
-                    }
-                },
+        function afficherPilier(index) {
+            if (index >= 0 && index < defaultPillarsData.length) {
+                currentIndex = index;
+                const sectionPilier = document.getElementById('pilier');
+                const sectionAccueil = document.getElementById('accueil');
+                sectionAccueil.style.display = 'none';
+                sectionPilier.style.display = 'block';
+                sectionPilier.innerHTML = ''; // Clear previous content
 
-                resetToDefaultsWithGoals() {
-                    const now = new Date();
-                    let defaultGoals = [];
-                    defaultPillarsData.forEach(pillar => {
-                        pillar.subPillars?.forEach(subPillar => {
-                            ['court', 'moyen', 'long'].forEach(term => {
-                                if (subPillar[term]) {
-                                    defaultGoals.push({
-                                        id: Utils.generateId(),
-                                        pillarId: pillar.id,
-                                        subPillarName: subPillar.name,
-                                        title: subPillar[term],
-                                        dueDate: Utils.calculateDueDate(term, now),
-                                        status: 'pending'
-                                    });
-                                }
-                            });
+                const pilier = defaultPillarsData[index];
+                const divPilier = document.createElement('div');
+                divPilier.classList.add('pilier');
+                divPilier.setAttribute('data-theme', pilier.theme);
+                divPilier.innerHTML = `<h2><img src="${pilier.icon}" alt="${pilier.name}"> ${pilier.name}</h2>`;
+
+                pilier.subPillars.forEach((subPilier, indexSousPilier) => {
+                    const divSousPilier = document.createElement('div');
+                    divSousPilier.classList.add('sous-pilier');
+                    divSousPilier.innerHTML = `
+                        <h3>${subPilier.name}</h3>
+                        <div class="objectif">
+                            <input type="text" value="${subPilier.court}" ondblclick="ouvrirPopup('court', ${index}, ${indexSousPilier})">
+                        </div>
+                        <div class="objectif">
+                            <input type="text" value="${subPilier.moyen}" ondblclick="ouvrirPopup('moyen', ${index}, ${indexSousPilier})">
+                        </div>
+                        <div class="objectif">
+                            <input type="text" value="${subPilier.long}" ondblclick="ouvrirPopup('long', ${index}, ${indexSousPilier})">
+                        </div>
+                    `;
+                    divPilier.appendChild(divSousPilier);
+                });
+
+                sectionPilier.appendChild(divPilier);
+            }
+        }
+
+        function ouvrirPopup(terme, indexPilier, indexSousPilier) {
+            currentObjectif = { terme, indexPilier, indexSousPilier };
+            const subPilier = defaultPillarsData[indexPilier].subPillars[indexSousPilier];
+            document.getElementById('popup-text').value = subPilier[terme];
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function modifierObjectif() {
+            if (currentObjectif) {
+                const { terme, indexPilier, indexSousPilier } = currentObjectif;
+                const nouveauTexte = document.getElementById('popup-text').value;
+                defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = nouveauTexte;
+                localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
+                fermerPopup();
+                afficherPilier(currentIndex);
+            }
+        }
+
+        function supprimerObjectif() {
+            if (currentObjectif) {
+                const { terme, indexPilier, indexSousPilier } = currentObjectif;
+                defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = "";
+                localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
+                fermerPopup();
+                afficherPilier(currentIndex);
+            }
+        }
+
+        function fermerPopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        window.onload = function() {
+            const piliersLocalStorage = localStorage.getItem('piliers');
+            if (piliersLocalStorage) {
+                try {
+                    const parsedData = JSON.parse(piliersLocalStorage);
+                    if (Array.isArray(parsedData) && parsedData.length === defaultPillarsData.length) {
+                        parsedData.forEach((pilier, index) => {
+                            if (defaultPillarsData[index]) {
+                                defaultPillarsData[index] = pilier;
+                            }
                         });
-                    });
-                    this.appData.goals = defaultGoals;
-                    this.save();
-                },
-
-                save() {
-                    localStorage.setItem('piliersDeVieData', JSON.stringify(this.appData));
-                },
-
-                getGoals() { return this.appData.goals; },
-                getPillars() { return this.appData.pillars; }
-            };
-
-            const UI = {
-                elements: {},
-                currentPillarIndex: -1,
-
-                init() {
-                    Store.load();
-                    this.elements = {
-                        content: document.getElementById('content'),
-                        welcomeView: document.getElementById('welcome-view'),
-                        startButton: document.querySelector('.btn-start')
-                    };
-                    this.renderPillarViews();
-                    this.setupEventListeners();
-                },
-
-                renderPillarViews() {
-                    const pillars = Store.getPillars();
-                    pillars.forEach(pillar => {
-                        const view = document.createElement('div');
-                        view.id = `pillar-${pillar.id}`;
-                        view.className = 'view pillar-view';
-                        view.dataset.pillarId = pillar.id;
-                        view.innerHTML = `
-                            <div class="pillar-header" style="color: var(--pillar-color-${pillar.id});">
-                                ${pillar.icon}
-                                <h2>${Utils.escapeHtml(pillar.name)}</h2>
-                            </div>
-                            <ul class="goal-list" id="goals-${pillar.id}"></ul>
-                            <div class="navigation">
-                                <button class="nav-btn prev-btn">Précédent</button>
-                                <button class="nav-btn next-btn">Suivant</button>
-                            </div>
-                        `;
-                        this.elements.content.appendChild(view);
-                    });
-                    this.renderGoals();
-                },
-
-                renderGoals() {
-                    const goals = Store.getGoals();
-                    Store.getPillars().forEach(pillar => {
-                        const list = document.getElementById(`goals-${pillar.id}`);
-                        list.innerHTML = '';
-                        goals.filter(g => g.pillarId === pillar.id).forEach(goal => {
-                            const li = document.createElement('li');
-                            li.className = 'goal-item';
-                            li.innerHTML = `
-                                <span class="goal-title">${Utils.escapeHtml(goal.subPillarName)} : ${Utils.escapeHtml(goal.title)}</span>
-                                <span class="goal-due-date">Échéance: ${Utils.formatDate(goal.dueDate)}</span>
-                            `;
-                            list.appendChild(li);
-                        });
-                    });
-                },
-
-                showView(viewId) {
-                    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-                    document.getElementById(viewId).classList.add('active');
-                    this.updateNavigationButtons();
-                },
-
-                navigateToPillar(index) {
-                    const pillars = Store.getPillars();
-                    if (index >= 0 && index < pillars.length) {
-                        this.currentPillarIndex = index;
-                        this.showView(`pillar-${pillars[index].id}`);
                     }
-                },
-
-                updateNavigationButtons() {
-                    const pillars = Store.getPillars();
-                    const prevBtn = document.querySelector('.pillar-view.active .prev-btn');
-                    const nextBtn = document.querySelector('.pillar-view.active .next-btn');
-                    prevBtn.disabled = this.currentPillarIndex <= 0;
-                    nextBtn.disabled = this.currentPillarIndex >= pillars.length - 1;
-                },
-
-                setupEventListeners() {
-                    this.elements.startButton.addEventListener('click', () => this.navigateToPillar(0));
-                    document.querySelectorAll('.prev-btn').forEach(btn => {
-                        btn.addEventListener('click', () => this.navigateToPillar(this.currentPillarIndex - 1));
-                    });
-                    document.querySelectorAll('.next-btn').forEach(btn => {
-                        btn.addEventListener('click', () => this.navigateToPillar(this.currentPillarIndex + 1));
-                    });
+                } catch (e) {
+                    console.error("Erreur lors de la récupération des données du localStorage :", e);
                 }
-            };
-
-            const Utils = {
-                generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 9); },
-                escapeHtml(unsafe) { return unsafe ? unsafe.replace(/["'&<>]/g, c => ({ '"': '"', '&': '&', "'": ''', '<': '<', '>': '>' })[c]) : ''; },
-                formatDate(dateString) { return dateString ? new Date(dateString).toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'; },
-                calculateDueDate(term, baseDate = new Date()) {
-                    const targetDate = new Date(baseDate);
-                    switch (term) {
-                        case 'court': targetDate.setMonth(targetDate.getMonth() + 2); break;
-                        case 'moyen': targetDate.setMonth(targetDate.getMonth() + 6); break;
-                        case 'long': targetDate.setFullYear(targetDate.getFullYear() + 1, targetDate.getMonth() + 6); break;
-                    }
-                    return targetDate.toISOString().split('T')[0];
-                }
-            };
-
-            document.addEventListener('DOMContentLoaded', () => UI.init());
-        })();
+            }
+        }
     </script>
 </body>
 </html>
