@@ -205,6 +205,7 @@
                 const nouveauTexte = document.getElementById('popup-text').value;
                 defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = nouveauTexte;
                 localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
+                console.log("Objectif modifié :", defaultPillarsData[indexPilier].subPillars[indexSousPilier]);
                 fermerPopup();
                 location.reload();
             }
@@ -215,6 +216,7 @@
                 const { terme, indexPilier, indexSousPilier } = currentObjectif;
                 defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = "";
                 localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
+                console.log("Objectif supprimé :", defaultPillarsData[indexPilier].subPillars[indexSousPilier]);
                 fermerPopup();
                 location.reload();
             }
@@ -227,8 +229,16 @@
         window.onload = function() {
             const piliersLocalStorage = localStorage.getItem('piliers');
             if (piliersLocalStorage) {
-                Object.assign(defaultPillarsData, JSON.parse(piliersLocalStorage));
+                const parsedData = JSON.parse(piliersLocalStorage);
+                console.log("Données récupérées du localStorage :", parsedData);
+                // Mettre à jour chaque pilier individuellement
+                parsedData.forEach((pilier, index) => {
+                    if (defaultPillarsData[index]) {
+                        defaultPillarsData[index] = pilier;
+                    }
+                });
             }
+            console.log("Données des piliers après fusion :", defaultPillarsData);
             afficherPiliersEtSousPiliers();
         }
     </script>
