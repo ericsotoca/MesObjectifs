@@ -2,245 +2,864 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion d'Objectifs de Vie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4A90E2"/>
+    <!-- Assure-toi que ces chemins sont corrects pour ton déploiement GitHub Pages -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+
+    <title>Objectifs de Vie Détaillés</title> <!-- Titre mis à jour -->
+
     <style>
+        /* --- CSS Global & Reset --- */
+        :root {
+            --font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --font-family-serif: 'Georgia', 'Times New Roman', Times, serif;
+
+            /* Couleurs Thème Clair (Défaut) */
+            --bg-primary: #ffffff; --bg-secondary: #f0f4f8; --text-primary: #2c3e50;
+            --text-secondary: #5a7084; --accent-primary: #4A90E2; --accent-secondary: #50E3C2;
+            --border-color: #dce4ec; --shadow-color: rgba(0, 0, 0, 0.1);
+            --danger-color: #e74c3c; --success-color: #2ecc71; --warning-color: #f39c12;
+
+            /* Correspondance IDs et Couleurs (Ajuste si tes IDs ont changé) */
+            --pillar-color-sante: #4CAF50;
+            --pillar-color-famille: #FF9800;
+            --pillar-color-finances: #FFC107;
+            --pillar-color-carriere: #607D8B;
+            --pillar-color-loisirs: #9C27B0;
+            --pillar-color-devperso: #2196F3;
+            --pillar-color-relations: #E91E63;
+            --pillar-color-cadrevie: #3F51B5;
+
+            /* Tailles & Espacements */
+            --spacing-xs: 4px; --spacing-s: 8px; --spacing-m: 16px; --spacing-l: 24px; --spacing-xl: 32px;
+            --border-radius: 8px; --header-height: 50px; --nav-height: 60px;
+        }
+
+        /* --- Thème Sombre --- */
+        body.dark-mode {
+            --bg-primary: #1a1a1a; --bg-secondary: #2c2c2c; --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0; --accent-primary: #58a6ff; --accent-secondary: #50E3C2;
+            --border-color: #444444; --shadow-color: rgba(255, 255, 255, 0.05);
+            --danger-color: #f87171; --success-color: #4ade80; --warning-color: #facc15;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; scroll-behavior: smooth; }
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: var(--font-family-sans); background-color: var(--bg-primary); color: var(--text-primary);
+            line-height: 1.6; overscroll-behavior-y: contain; padding-bottom: var(--nav-height);
         }
+        #app { max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* --- Header --- */
         header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1em;
-            width: 100%;
-            text-align: center;
+            background-color: var(--accent-primary); color: white; padding: 0 var(--spacing-m); height: var(--header-height);
+            display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
-        main {
-            padding: 1em;
-            width: 100%;
-            max-width: 600px;
+        header h1 { font-size: 1.2rem; font-weight: 600; }
+        #theme-toggle { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: var(--spacing-s); margin: calc(var(--spacing-s) * -1); }
+
+        /* --- Main Content Area --- */
+        main#content { flex-grow: 1; padding: var(--spacing-m); padding-bottom: calc(var(--nav-height) + var(--spacing-m)); overflow-y: auto; }
+
+        /* --- View Management --- */
+        .view { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Navigation Bar (Bottom) --- */
+        nav#bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: var(--nav-height); background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: stretch;
+            z-index: 100; box-shadow: 0 -2px 5px var(--shadow-color);
         }
-        .pilier {
-            margin-bottom: 2em;
+        nav#bottom-nav button {
+            background: none; border: none; color: var(--text-secondary); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-size: 0.7rem; padding: var(--spacing-s) var(--spacing-xs);
+            cursor: pointer; transition: color 0.2s ease, background-color 0.2s ease; flex-grow: 1; position: relative;
+            text-align: center; line-height: 1.2;
         }
-        .pilier h2 {
-            border-bottom: 2px solid;
-            padding-bottom: 0.5em;
+        nav#bottom-nav button svg { width: 24px; height: 24px; margin-bottom: var(--spacing-xs); fill: currentColor; }
+        nav#bottom-nav button.active { color: var(--accent-primary); font-weight: 600; }
+        nav#bottom-nav button:hover:not(.active) { background-color: color-mix(in srgb, var(--border-color), transparent 50%); }
+        nav#bottom-nav button.active::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 40%; max-width: 40px; height: 3px; background-color: var(--accent-primary); border-radius: 3px 3px 0 0;
         }
-        .sous-pilier {
-            margin-bottom: 1em;
+
+        /* --- Generic Styles --- */
+        .card {
+            background-color: var(--bg-secondary); border-radius: var(--border-radius); padding: var(--spacing-m);
+            margin-bottom: var(--spacing-m); box-shadow: 0 1px 3px var(--shadow-color); border: 1px solid var(--border-color);
         }
-        .sous-pilier h3 {
-            margin-bottom: 0.5em;
+        h2 { color: var(--accent-primary); margin-bottom: var(--spacing-m); font-size: 1.4rem; border-bottom: 2px solid var(--accent-secondary); padding-bottom: var(--spacing-s); }
+        h3 { color: var(--text-primary); margin-top: var(--spacing-l); margin-bottom: var(--spacing-s); font-size: 1.1rem; display: flex; align-items: center; gap: var(--spacing-s); scroll-margin-top: calc(var(--header-height) + var(--spacing-m)); }
+        .pillar-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; flex-shrink: 0; }
+        button, input[type="submit"], input[type="button"] { -webkit-tap-highlight-color: transparent; }
+        :focus-visible { outline: 3px solid var(--accent-primary); outline-offset: 1px; border-radius: 3px; }
+
+        /* --- Buttons --- */
+        button.primary, input[type="submit"].primary {
+            background-color: var(--accent-primary); color: white; border: none; padding: var(--spacing-s) var(--spacing-m);
+            border-radius: var(--border-radius); cursor: pointer; font-size: 1rem; transition: background-color 0.2s ease, transform 0.1s ease;
+            display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-s); line-height: 1.2;
         }
-        .objectif {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5em;
+        button.primary:hover:not(:disabled) { background-color: color-mix(in srgb, var(--accent-primary), black 10%); }
+        button.primary:active:not(:disabled) { transform: scale(0.98); }
+        button.primary:disabled { background-color: var(--text-secondary); cursor: not-allowed; opacity: 0.7; }
+
+        button.secondary {
+             background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);
+             padding: var(--spacing-s) var(--spacing-m); border-radius: var(--border-radius); cursor: pointer;
+             font-size: 1rem; transition: background-color 0.2s ease; line-height: 1.2;
         }
-        .objectif input {
-            flex-grow: 1;
-            padding: 0.5em;
-            margin-right: 0.5em;
-            cursor: pointer;
+        button.secondary:hover:not(:disabled) { background-color: color-mix(in srgb, var(--bg-secondary), black 5%); }
+        button.secondary:disabled { color: var(--text-secondary); border-color: var(--text-secondary); cursor: not-allowed; opacity: 0.7;}
+
+        button.danger { background-color: var(--danger-color); color: white; }
+        button.danger:hover:not(:disabled) { background-color: color-mix(in srgb, var(--danger-color), black 10%); }
+
+        button.icon-button {
+             background: none; border: none; padding: var(--spacing-xs); font-size: 1.2rem;
+             cursor: pointer; color: var(--text-secondary); transition: color 0.2s ease; line-height: 1; vertical-align: middle;
+             border-radius: 50%;
         }
-        .objectif button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 0.5em;
-            cursor: pointer;
+         button.icon-button:hover:not(:disabled) { background-color: color-mix(in srgb, var(--border-color), transparent 50%); color: var(--accent-primary); }
+        button.icon-button svg { display: block; }
+        button.icon-button.complete-btn { color: var(--success-color); }
+        button.icon-button.delete-btn { color: var(--danger-color); }
+        button.icon-button:disabled { color: var(--border-color); cursor: not-allowed; opacity: 0.5; }
+
+        /* --- Form Styles --- */
+        form label { display: block; margin-bottom: var(--spacing-xs); font-weight: 600; color: var(--text-secondary); }
+        form input[type="text"], form input[type="date"], form input[type="number"], form select, form textarea {
+            width: 100%; padding: var(--spacing-s); margin-bottom: var(--spacing-m); border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem;
         }
-        .objectif button:hover {
-            background-color: #45a049;
+        form textarea { min-height: 100px; resize: vertical; }
+        form input:focus, form select:focus, form textarea:focus {
+            outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary), transparent 70%);
         }
-        .pilier[data-theme="sante"] h2 {
-            border-color: #FF6347;
+        .form-actions { display: flex; gap: var(--spacing-m); }
+
+        /* --- Goals List Styles --- */
+        .pillar-goal-section { margin-bottom: var(--spacing-l); }
+        .goal-list { list-style: none; padding-left: 0; }
+        .goal-item {
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+            padding: var(--spacing-s) 0; border-bottom: 1px solid var(--border-color); gap: var(--spacing-s);
         }
-        .pilier[data-theme="famille"] h2 {
-            border-color: #FFD700;
+        .goal-item:last-child { border-bottom: none; }
+        .goal-info { flex-grow: 1; display: flex; align-items: center; gap: var(--spacing-s); min-width: 200px; }
+        .goal-title { font-weight: 600; margin-right: auto; word-break: break-word; font-size: 0.95rem; /* Slightly smaller if titles get long */ }
+        .goal-title .subpillar-prefix { /* Style for sub-pillar name */
+             font-weight: normal;
+             color: var(--text-secondary);
+             margin-right: var(--spacing-xs);
+             font-size: 0.85rem;
         }
-        .pilier[data-theme="finances"] h2 {
-            border-color: #32CD32;
+        .goal-item.completed .goal-title { text-decoration: line-through; color: var(--text-secondary); font-weight: normal; }
+        .goal-item.completed .goal-title .subpillar-prefix { color: inherit; } /* Inherit dim color */
+        .goal-due-date { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; }
+        .goal-actions { display: flex; align-items: center; flex-shrink: 0; gap: var(--spacing-xs); }
+
+        /* --- Journal Styles --- */
+        .journal-entry {
+            background-color: var(--bg-secondary); padding: var(--spacing-s) var(--spacing-m);
+            border-radius: var(--border-radius); margin-bottom: var(--spacing-m); border-left: 4px solid var(--accent-secondary);
         }
-        .pilier[data-theme="carriere"] h2 {
-            border-color: #1E90FF;
+        .journal-entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--spacing-xs); }
+        .journal-entry-date { font-size: 0.8rem; color: var(--text-secondary); }
+        .journal-entry-content { white-space: pre-wrap; word-wrap: break-word; }
+        .journal-entry .delete-journal-btn { padding: 0; font-size: 1rem; }
+
+        /* --- Settings Styles --- */
+        .settings-section { margin-bottom: var(--spacing-xl); }
+        .settings-section button { margin-right: var(--spacing-m); margin-bottom: var(--spacing-s); }
+        #import-data-input { display: none; }
+        #import-export-status { font-size: 0.9rem; margin-top: var(--spacing-s); display: flex; align-items: center; gap: var(--spacing-s); min-height: 22px; }
+        .spinner { border: 3px solid var(--border-color); border-top: 3px solid var(--accent-primary); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: inline-block; margin-right: var(--spacing-s); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-indicator { display: none; }
+        .loading-indicator.visible { display: inline-flex; align-items: center; }
+
+        /* --- Utility Classes --- */
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: var(--spacing-s); } .mt-2 { margin-top: var(--spacing-m); }
+        .mb-1 { margin-bottom: var(--spacing-s); } .mb-2 { margin-bottom: var(--spacing-m); }
+        .text-secondary { color: var(--text-secondary); }
+        .no-print {}
+
+        /* --- Toast Notifications --- */
+        #toast-container {
+            position: fixed; bottom: calc(var(--nav-height) + var(--spacing-m));
+            left: 50%; transform: translateX(-50%);
+            z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: var(--spacing-s);
+            width: calc(100% - 2 * var(--spacing-m)); max-width: 400px; pointer-events: none;
         }
-        .pilier[data-theme="loisirs"] h2 {
-            border-color: #FF69B4;
+        .toast {
+            background-color: color-mix(in srgb, var(--text-primary), var(--bg-primary) 20%); color: var(--bg-primary);
+            padding: var(--spacing-s) var(--spacing-m); border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px var(--shadow-color); font-size: 0.9rem;
+            opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateY(10px);
+            text-align: center; word-break: break-word; pointer-events: auto;
+            width: fit-content; max-width: 100%;
         }
-        .pilier[data-theme="devperso"] h2 {
-            border-color: #8A2BE2;
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background-color: var(--success-color); color: white; }
+        .toast.error { background-color: var(--danger-color); color: white; }
+        .toast.warning { background-color: var(--warning-color); color: white; }
+
+        /* --- Responsive --- */
+        @media (min-width: 768px) {
+            #app { max-width: 800px; }
+             main#content { padding-bottom: var(--spacing-xl); }
+             #toast-container { bottom: var(--spacing-m); }
         }
-        .pilier[data-theme="relations"] h2 {
-            border-color: #FF4500;
+
+         /* --- Style d'impression --- */
+        @media print {
+            body { background-color: white !important; color: black !important; font-size: 11pt; padding-bottom: 0; }
+            :root {
+                --bg-primary: white; --bg-secondary: #f9f9f9; --text-primary: black;
+                --text-secondary: #555; --accent-primary: black; --accent-secondary: #ccc;
+                --border-color: #ccc; --danger-color: black; --success-color: black;
+            }
+            header, nav#bottom-nav, button, input[type="submit"], .no-print, #toast-container { display: none !important; }
+            main#content { padding: 1cm; overflow: visible; height: auto; }
+            .card, .journal-entry { box-shadow: none !important; border: 1px solid #ccc !important; page-break-inside: avoid; background-color: #f9f9f9 !important; }
+            h2, h3 { color: black !important; border-bottom: 1px solid #ccc !important; page-break-after: avoid; }
+            h3 { margin-top: var(--spacing-m); }
+            .goal-item { border-bottom: 1px dotted #ccc; }
+            .goal-actions { display: none; }
+            .pillar-dot { border: 1px solid #ccc; background-color: lightgray !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .journal-entry { border-left: 4px solid #ccc !important; }
+             a { color: black !important; text-decoration: none; }
+             a[href^="http"]::after { content: " [" attr(href) "]"; font-size: 9pt; color: #555; word-break: break-all; }
+             .goal-item.completed .goal-title { color: #555 !important; text-decoration: none; }
+             .goal-item.completed .goal-title .subpillar-prefix { color: inherit !important; }
+             .goal-title .subpillar-prefix { color: #555 !important; }
+             .goal-due-date { color: #555 !important; }
         }
-        .pilier[data-theme="cadrevie"] h2 {
-            border-color: #00CED1;
-        }
+
     </style>
 </head>
 <body>
-    <header>
-        <h1>Gestion d'Objectifs de Vie</h1>
-    </header>
-    <main>
-        <section id="piliers">
-            <!-- Les piliers et sous-piliers seront dynamiquement générés ici -->
-        </section>
-    </main>
-    <div id="popup" style="display:none; position:fixed; left:50%; top:50%; transform:translate(-50%, -50%); background:white; border:1px solid #ccc; padding:2em; z-index:1000;">
-        <textarea id="popup-text" rows="4" cols="50"></textarea><br>
-        <button onclick="modifierObjectif()">Modifier</button>
-        <button onclick="supprimerObjectif()">Supprimer</button>
-        <button onclick="fermerPopup()">Fermer</button>
-    </div>
+    <div id="app">
+        <header>
+            <h1>Objectifs de Vie</h1>
+            <button id="theme-toggle" aria-label="Changer de thème">🌙</button>
+        </header>
+
+        <main id="content">
+            <!-- === Vue Liste des Objectifs (Page d'accueil) === -->
+            <div id="goals-view" class="view active"> <!-- Active par défaut -->
+                <h2>Objectifs par Pilier</h2>
+                <div id="goals-list-container">
+                    <!-- Contenu généré par JS -->
+                    <p class="text-center text-secondary mt-2">Chargement des objectifs...</p>
+                </div>
+            </div>
+
+             <!-- === Vue Ajout/Modification Objectif === -->
+             <div id="add-edit-goal-view" class="view">
+                 <h2 id="goal-form-title">Ajouter un Objectif</h2>
+                 <form id="goal-form" class="card">
+                    <input type="hidden" id="goal-id">
+                    <div>
+                        <label for="goal-title-input">Nom de l'objectif (Spécifique)</label>
+                        <input type="text" id="goal-title-input" required placeholder="Ex: Physique: Courir 5km sans m'arrêter"> <!-- Placeholder mis à jour -->
+                    </div>
+                    <div>
+                        <label for="goal-pillar-select">Pilier Principal</label> <!-- Label mis à jour -->
+                        <select id="goal-pillar-select" required>
+                           <option value="" disabled selected>Choisir un pilier...</option>
+                           <!-- Options (Piliers Principaux) générées par JS -->
+                        </select>
+                    </div>
+                     <!-- On n'ajoute pas de sélection de sous-pilier pour garder simple, on se base sur le titre -->
+                    <div>
+                        <label for="goal-measurable-input">Critère de succès (Mesurable)</label>
+                        <textarea id="goal-measurable-input" placeholder="Ex: Terminer la course, Fréquence hebdomadaire..."></textarea>
+                    </div>
+                    <div>
+                        <label for="goal-due-date-input">Échéance (Temporel)</label>
+                        <input type="date" id="goal-due-date-input" required>
+                    </div>
+                     <div>
+                         <label for="goal-notes-input">Notes / Étapes clés (Optionnel)</label>
+                        <textarea id="goal-notes-input" placeholder="Étapes : 1. Acheter chaussures, 2. Programme C25K..."></textarea>
+                     </div>
+                    <div class="form-actions mt-2">
+                        <button type="submit" class="primary">
+                             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zm-7-7c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zM6 6h9v4H6z"/></svg>
+                            <span id="goal-form-submit-text">Enregistrer</span>
+                        </button>
+                        <button type="button" id="cancel-goal-form" class="secondary no-print" style="margin-left: var(--spacing-m);">Annuler</button>
+                    </div>
+                 </form>
+            </div>
+
+            <!-- === Vue Journal === -->
+            <div id="journal-view" class="view">
+                <h2>Journal de Réflexion</h2>
+                <div class="card">
+                    <form id="journal-form">
+                        <label for="journal-entry-input">Nouvelle entrée (liée aux objectifs)</label>
+                        <textarea id="journal-entry-input" required placeholder="Notez vos progrès, difficultés, réussites concernant vos objectifs..."></textarea>
+                        <button type="submit" class="primary">
+                             <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                            Ajouter au Journal
+                        </button>
+                    </form>
+                </div>
+                <h3>Entrées précédentes</h3>
+                <div id="journal-entries-list">
+                    <p class="text-secondary">Votre journal est vide pour le moment.</p>
+                </div>
+            </div>
+
+            <!-- === Vue Paramètres (Simplifiée) === -->
+            <div id="settings-view" class="view">
+                <h2>Paramètres</h2>
+
+                <div class="settings-section card">
+                     <h3>Préférences</h3>
+                     <button id="toggle-theme-button" class="secondary">Basculer Thème Sombre/Clair</button>
+                </div>
+
+                <div class="settings-section card">
+                    <h3>Données</h3>
+                     <p class="text-secondary mb-2">Sauvegardez ou restaurez vos objectifs et journal.</p>
+                    <button id="export-data-button" class="secondary">
+                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5v-2z"/></svg>
+                        Exporter Données (.json)
+                    </button>
+                    <button id="import-data-button" class="secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><g><rect fill="none" height="24" width="24"/></g><g><path d="M14,2H6C4.9,2,4,2.9,4,4v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V8L14,2z M18,20H6V4h7v5h5V20z M12,12L8,16h3v4h2v-4h3 L12,12z"/></g></svg>
+                        Importer Données
+                    </button>
+                    <input type="file" id="import-data-input" accept=".json">
+                    <div id="import-export-status" class="mt-1">
+                        <span class="loading-indicator">
+                            <span class="spinner"></span>
+                            <span class="loading-text">Traitement...</span>
+                        </span>
+                        <span class="status-message text-secondary"></span>
+                    </div>
+                </div>
+
+                 <div class="settings-section card">
+                    <h3>Aide & Infos</h3>
+                     <p class="text-secondary">Version 1.3.0 - Objectifs Détaillés</p> <!-- Version mise à jour -->
+                     <p><a href="https://github.com/Malakio80/objectifs-de-vie" target="_blank" rel="noopener noreferrer">Voir sur GitHub</a></p>
+                     <p>Application simple de suivi d'objectifs personnels.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <nav id="bottom-nav">
+             <!-- Barre de navigation simplifiée -->
+            <button class="nav-button active" data-view="goals-view" aria-label="Objectifs">
+                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z"/></svg>
+                <span>Objectifs</span>
+            </button>
+             <button class="nav-button" data-view="add-edit-goal-view" aria-label="Ajouter objectif">
+                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                <span>Ajouter</span>
+             </button>
+            <button class="nav-button" data-view="journal-view" aria-label="Journal">
+                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                <span>Journal</span>
+            </button>
+            <button class="nav-button" data-view="settings-view" aria-label="Paramètres">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.08-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.08.49 0 .61.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+                <span>Paramètres</span>
+            </button>
+        </nav>
+
+        <!-- Templates pour contenu dynamique -->
+        <template id="goal-item-template">
+            <li class="goal-item" data-goal-id="">
+                <div class="goal-info">
+                    <!-- Le titre contient maintenant le sous-pilier -->
+                    <span class="goal-title">
+                        <!-- Le JS insère <span class="subpillar-prefix">Nom Sous-Pilier:</span> ici -->
+                    </span>
+                    <span class="goal-due-date"></span>
+                </div>
+                <div class="goal-actions no-print">
+                     <button class="icon-button complete-btn" title="Marquer comme terminé">
+                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.2l-3.5-3.5c-.39-.39-1.01-.39-1.4 0-.39.39-.39 1.01 0 1.4l4.19 4.19c.39.39 1.02.39 1.41 0L20.3 7.7c.39-.39.39-1.01 0-1.4-.39-.39-1.01-.39-1.4 0L9 16.2z"/></svg>
+                     </button>
+                     <button class="icon-button uncomplete-btn" title="Marquer comme non terminé" style="display: none;">
+                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                     </button>
+                    <button class="icon-button edit-btn" title="Modifier">
+                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/></svg>
+                    </button>
+                    <button class="icon-button delete-btn" title="Supprimer">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                    </button>
+                </div>
+            </li>
+        </template>
+
+        <template id="journal-entry-template">
+            <div class="journal-entry" data-entry-id="">
+                <div class="journal-entry-header">
+                    <div class="journal-entry-date"></div>
+                    <button class="icon-button delete-journal-btn no-print" title="Supprimer l'entrée">
+                       <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1zM18 7H6v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7z"/></svg>
+                    </button>
+                </div>
+                <div class="journal-entry-content"></div>
+            </div>
+        </template>
+
+    </div><!-- /#app -->
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" aria-live="polite"></div>
+
     <script>
-        const defaultPillarsData = [
-            { id: "sante", name: "Santé", theme: "sante", subPillars: [
-                { id: "sante-phy", name: "Physique", court: "Améliorer sa condition physique pour se sentir plus énergique au quotidien.", moyen: "Intégrer une routine d'exercice régulière.", long: "Atteindre un niveau de forme physique optimal." },
-                { id: "sante-men", name: "Mental", court: "Cultiver un état d'esprit positif pour mieux faire face aux défis de la vie.", moyen: "Pratiquer la méditation ou le journaling.", long: "Développer une résilience mentale durable." },
-                { id: "sante-som", name: "Sommeil", court: "Obtenir un sommeil réparateur pour maximiser son bien-être général.", moyen: "Établir une routine de sommeil régulière.", long: "Optimiser son environnement de sommeil pour un repos optimal." },
-                { id: "sante-nut", name: "Nutrition", court: "Adopter une alimentation équilibrée pour maintenir une bonne santé à long terme.", moyen: "Planifier des repas sains et équilibrés.", long: "Maintenir une alimentation saine comme mode de vie." },
-                { id: "sante-ene", name: "Énergie", court: "Augmenter son niveau d'énergie pour accomplir ses tâches quotidiennes avec efficacité.", moyen: "Identifier et éliminer les sources de fatigue.", long: "Maintenir un niveau d'énergie élevé grâce à des habitudes saines." }
-            ]},
-            { id: "famille", name: "Famille", theme: "famille", subPillars: [
-                { id: "fam-pro", name: "Proches", court: "Renforcer les liens avec ses proches pour créer un sentiment d'appartenance.", moyen: "Organiser des activités familiales régulières.", long: "Construire des relations familiales solides et durables." },
-                { id: "fam-com", name: "Communication", court: "Améliorer la communication familiale pour éviter les malentendus.", moyen: "Pratiquer l'écoute active au sein de la famille.", long: "Établir une communication ouverte et honnête." },
-                { id: "fam-tmp", name: "Temps passé", court: "Passer plus de moments de qualité ensemble pour renforcer les relations familiales.", moyen: "Planifier des sorties ou des activités en famille.", long: "Créer des souvenirs familiaux mémorables." },
-                { id: "fam-sou", name: "Soutien", court: "Offrir et recevoir un soutien mutuel pour surmonter les difficultés.", moyen: "Être présent pour les membres de la famille en cas de besoin.", long: "Construire un réseau de soutien familial fort." },
-                { id: "fam-har", name: "Harmonie", court: "Maintenir une atmosphère paisible et harmonieuse au sein de la famille.", moyen: "Résoudre les conflits de manière constructive.", long: "Créer un environnement familial serein et équilibré." }
-            ]},
-            { id: "finances", name: "Finances", theme: "finances", subPillars: [
-                { id: "fin-0", name: "Revenus", court: "Diversifier ses sources de revenus pour accroître sa sécurité financière.", moyen: "Explorer des opportunités d'investissement.", long: "Atteindre une indépendance financière." },
-                { id: "fin-1", name: "Épargne", court: "Constituer une épargne suffisante pour faire face aux imprévus.", moyen: "Établir un plan d'épargne régulier.", long: "Avoir une réserve financière conséquente." },
-                { id: "fin-2", name: "Dépenses", court: "Maîtriser ses dépenses pour vivre selon ses moyens.", moyen: "Suivre et ajuster son budget régulièrement.", long: "Maintenir un équilibre financier stable." },
-                { id: "fin-3", name: "Investissements", court: "Faire fructifier son argent grâce à des placements judicieux.", moyen: "Diversifier ses investissements pour minimiser les risques.", long: "Atteindre des objectifs financiers à long terme." },
-                { id: "fin-4", name: "Sécurité", court: "Protéger ses finances contre les risques futurs pour assurer sa tranquillité d'esprit.", moyen: "Souscrire à des assurances adaptées.", long: "Avoir une stratégie financière sécurisée." }
-            ]},
-            { id: "carriere", name: "Carrière", theme: "carriere", subPillars: [
-                { id: "car-0", name: "Satisfaction", court: "Trouver un équilibre entre passion et profession pour s'épanouir dans son travail.", moyen: "Identifier des opportunités de carrière alignées avec ses intérêts.", long: "Atteindre une satisfaction professionnelle durable." },
-                { id: "car-1", name: "Progression", court: "Progresser régulièrement dans sa carrière pour atteindre ses ambitions professionnelles.", moyen: "Définir des étapes claires pour sa progression de carrière.", long: "Atteindre ses objectifs de carrière à long terme." },
-                { id: "car-2", name: "Équilibre", court: "Maintenir un équilibre entre vie professionnelle et vie personnelle pour préserver son bien-être.", moyen: "Établir des limites claires entre travail et vie personnelle.", long: "Avoir un équilibre de vie stable et satisfaisant." },
-                { id: "car-3", name: "Compétences", court: "Développer continuellement ses compétences pour rester pertinent dans son domaine.", moyen: "Suivre des formations ou des ateliers pour améliorer ses compétences.", long: "Devenir un expert reconnu dans son domaine." },
-                { id: "car-4", name: "Reconnaissance", court: "Recevoir une reconnaissance appropriée pour ses efforts et ses contributions.", moyen: "Communiquer ses réussites et ses contributions à son équipe ou à ses supérieurs.", long: "Être reconnu pour ses compétences et ses réalisations." }
-            ]},
-            { id: "loisirs", name: "Loisirs", theme: "loisirs", subPillars: [
-                { id: "loi-0", name: "Temps libre", court: "Consacrer du temps à ses loisirs pour se ressourcer pleinement.", moyen: "Planifier régulièrement des activités de loisirs.", long: "Intégrer les loisirs comme une partie essentielle de sa vie." },
-                { id: "loi-1", name: "Passions", court: "Explorer et approfondir ses passions pour enrichir sa vie personnelle.", moyen: "Découvrir de nouvelles passions ou approfondir celles existantes.", long: "Vivre une vie riche en passions et en intérêts variés." },
-                { id: "loi-2", name: "Détente", court: "Se détendre régulièrement pour réduire le stress et retrouver de l'énergie.", moyen: "Pratiquer des activités relaxantes régulièrement.", long: "Maintenir un niveau de stress bas grâce à des habitudes de détente." },
-                { id: "loi-3", name: "Créativité", court: "Stimuler sa créativité pour découvrir de nouvelles perspectives et idées.", moyen: "Participer à des activités créatives régulièrement.", long: "Développer sa créativité comme une compétence clé." },
-                { id: "loi-4", name: "Social", court: "Partager des moments de loisirs avec d'autres pour renforcer les liens sociaux.", moyen: "Organiser des activités sociales régulières.", long: "Avoir un réseau social fort et engagé." }
-            ]},
-            { id: "devperso", name: "Développement perso", theme: "devperso", subPillars: [
-                { id: "dev-0", name: "Apprentissage", court: "Acquérir de nouvelles connaissances pour évoluer continuellement.", moyen: "Suivre des cours ou des formations pour apprendre de nouvelles compétences.", long: "Devenir un apprenant à vie." },
-                { id: "dev-1", name: "Objectifs", court: "Définir et atteindre des objectifs clairs pour donner un sens à ses actions.", moyen: "Établir des objectifs SMART (spécifiques, mesurables, atteignables, réalistes, temporels).", long: "Atteindre ses objectifs de vie à long terme." },
-                { id: "dev-2", name: "Confiance", court: "Renforcer sa confiance en soi pour affronter les défis avec assurance.", moyen: "Pratiquer l'auto-compassion et la reconnaissance de ses réussites.", long: "Avoir une confiance en soi inébranlable." },
-                { id: "dev-3", name: "Résilience", court: "Développer sa résilience pour mieux rebondir après des épreuves.", moyen: "Apprendre des techniques de gestion du stress et de résilience.", long: "Devenir une personne résiliente face aux défis de la vie." },
-                { id: "dev-4", name: "Clarté", court: "Clarifier ses priorités pour prendre des décisions alignées avec ses valeurs.", moyen: "Réfléchir régulièrement à ses valeurs et à ses priorités.", long: "Avoir une vision claire de sa vie et de ses objectifs." }
-            ]},
-            { id: "relations", name: "Relations sociales", theme: "relations", subPillars: [
-                { id: "rel-0", name: "Amis", court: "Entretenir des amitiés sincères pour bâtir un réseau de soutien solide.", moyen: "Prendre régulièrement des nouvelles de ses amis.", long: "Avoir des amitiés durables et significatives." },
-                { id: "rel-1", name: "Réseau", court: "Élargir son réseau relationnel pour ouvrir de nouvelles opportunités.", moyen: "Participer à des événements de réseautage ou rejoindre des groupes d'intérêt.", long: "Avoir un réseau relationnel diversifié et enrichissant." },
-                { id: "rel-2", name: "Écoute", court: "Pratiquer une écoute active pour mieux comprendre les autres.", moyen: "Développer ses compétences en communication et en écoute active.", long: "Être reconnu comme un interlocuteur attentif et empathique." },
-                { id: "rel-3", name: "Partage", court: "Partager des expériences positives pour renforcer les liens humains.", moyen: "Organiser des activités ou des sorties avec ses proches.", long: "Avoir des relations basées sur le partage et la solidarité." },
-                { id: "rel-4", name: "Qualité", court: "Prioriser la qualité des relations plutôt que leur quantité pour vivre des interactions profondes.", moyen: "Investir du temps dans les relations importantes.", long: "Avoir des relations profondes et épanouissantes." }
-            ]},
-            { id: "cadrevie", name: "Cadre de vie", theme: "cadrevie", subPillars: [
-                { id: "cad-0", name: "Logement", court: "Créer un espace de vie confortable et fonctionnel pour se sentir chez soi.", moyen: "Aménager son espace de vie de manière ergonomique.", long: "Avoir un logement qui reflète son style de vie et ses besoins." },
-                { id: "cad-1", name: "Environnement", court: "Préserver un environnement sain et agréable pour améliorer son cadre de vie.", moyen: "Adopter des pratiques écologiques dans son quotidien.", long: "Vivre dans un environnement durable et respectueux de la nature." },
-                { id: "cad-2", name: "Organisation", court: "Maintenir un espace bien rangé pour gagner en efficacité et sérénité.", moyen: "Mettre en place des systèmes d'organisation pour son espace de vie.", long: "Avoir un espace de vie toujours bien organisé." },
-                { id: "cad-3", name: "Confort", court: "Optimiser son confort domestique pour se sentir détendu chez soi.", moyen: "Investir dans des éléments de confort pour son logement.", long: "Avoir un espace de vie confortable et accueillant." },
-                { id: "cad-4", name: "Esthétique", court: "Embellir son espace de vie pour refléter sa personnalité et son style.", moyen: "Décorer son espace de vie selon ses goûts.", long: "Avoir un espace de vie esthétiquement plaisant et personnalisé." }
-            ]}
-        ];
+        // Encapsulate all logic in an IIFE
+        (() => {
+            // --- Constants & Default State ---
 
-        let currentObjectif = null;
+            // Structure détaillée pour les objectifs par défaut
+            const defaultPillarsData = [
+                // Colle ici l'intégralité de ta structure defaultPillarsData fournie précédemment
+                // (Santé, Famille, Finances, Carrière, Loisirs, DevPerso, Relations, CadreVie)
+                { id: "sante", name: "Santé", theme: "sante", subPillars: [
+                    { id: "sante-phy", name: "Physique", court: "Améliorer sa condition physique pour se sentir plus énergique au quotidien.", moyen: "Intégrer une routine d'exercice régulière.", long: "Atteindre un niveau de forme physique optimal." },
+                    { id: "sante-men", name: "Mental", court: "Cultiver un état d'esprit positif pour mieux faire face aux défis de la vie.", moyen: "Pratiquer la méditation ou le journaling.", long: "Développer une résilience mentale durable." },
+                    { id: "sante-som", name: "Sommeil", court: "Obtenir un sommeil réparateur pour maximiser son bien-être général.", moyen: "Établir une routine de sommeil régulière.", long: "Optimiser son environnement de sommeil pour un repos optimal." },
+                    { id: "sante-nut", name: "Nutrition", court: "Adopter une alimentation équilibrée pour maintenir une bonne santé à long terme.", moyen: "Planifier des repas sains et équilibrés.", long: "Maintenir une alimentation saine comme mode de vie." },
+                    { id: "sante-ene", name: "Énergie", court: "Augmenter son niveau d'énergie pour accomplir ses tâches quotidiennes avec efficacité.", moyen: "Identifier et éliminer les sources de fatigue.", long: "Maintenir un niveau d'énergie élevé grâce à des habitudes saines." }
+                ]},
+                { id: "famille", name: "Famille", theme: "famille", subPillars: [
+                    { id: "fam-pro", name: "Proches", court: "Renforcer les liens avec ses proches pour créer un sentiment d'appartenance.", moyen: "Organiser des activités familiales régulières.", long: "Construire des relations familiales solides et durables." },
+                    { id: "fam-com", name: "Communication", court: "Améliorer la communication familiale pour éviter les malentendus.", moyen: "Pratiquer l'écoute active au sein de la famille.", long: "Établir une communication ouverte et honnête." },
+                    { id: "fam-tmp", name: "Temps passé", court: "Passer plus de moments de qualité ensemble pour renforcer les relations familiales.", moyen: "Planifier des sorties ou des activités en famille.", long: "Créer des souvenirs familiaux mémorables." },
+                    { id: "fam-sou", name: "Soutien", court: "Offrir et recevoir un soutien mutuel pour surmonter les difficultés.", moyen: "Être présent pour les membres de la famille en cas de besoin.", long: "Construire un réseau de soutien familial fort." },
+                    { id: "fam-har", name: "Harmonie", court: "Maintenir une atmosphère paisible et harmonieuse au sein de la famille.", moyen: "Résoudre les conflits de manière constructive.", long: "Créer un environnement familial serein et équilibré." }
+                ]},
+                { id: "finances", name: "Finances", theme: "finances", subPillars: [
+                    { id: "fin-0", name: "Revenus", court: "Diversifier ses sources de revenus pour accroître sa sécurité financière.", moyen: "Explorer des opportunités d'investissement.", long: "Atteindre une indépendance financière." },
+                    { id: "fin-1", name: "Épargne", court: "Constituer une épargne suffisante pour faire face aux imprévus.", moyen: "Établir un plan d'épargne régulier.", long: "Avoir une réserve financière conséquente." },
+                    { id: "fin-2", name: "Dépenses", court: "Maîtriser ses dépenses pour vivre selon ses moyens.", moyen: "Suivre et ajuster son budget régulièrement.", long: "Maintenir un équilibre financier stable." },
+                    { id: "fin-3", name: "Investissements", court: "Faire fructifier son argent grâce à des placements judicieux.", moyen: "Diversifier ses investissements pour minimiser les risques.", long: "Atteindre des objectifs financiers à long terme." },
+                    { id: "fin-4", name: "Sécurité", court: "Protéger ses finances contre les risques futurs pour assurer sa tranquillité d'esprit.", moyen: "Souscrire à des assurances adaptées.", long: "Avoir une stratégie financière sécurisée." }
+                ]},
+                { id: "carriere", name: "Carrière", theme: "carriere", subPillars: [
+                    { id: "car-0", name: "Satisfaction", court: "Trouver un équilibre entre passion et profession pour s'épanouir dans son travail.", moyen: "Identifier des opportunités de carrière alignées avec ses intérêts.", long: "Atteindre une satisfaction professionnelle durable." },
+                    { id: "car-1", name: "Progression", court: "Progresser régulièrement dans sa carrière pour atteindre ses ambitions professionnelles.", moyen: "Définir des étapes claires pour sa progression de carrière.", long: "Atteindre ses objectifs de carrière à long terme." },
+                    { id: "car-2", name: "Équilibre", court: "Maintenir un équilibre entre vie professionnelle et vie personnelle pour préserver son bien-être.", moyen: "Établir des limites claires entre travail et vie personnelle.", long: "Avoir un équilibre de vie stable et satisfaisant." },
+                    { id: "car-3", name: "Compétences", court: "Développer continuellement ses compétences pour rester pertinent dans son domaine.", moyen: "Suivre des formations ou des ateliers pour améliorer ses compétences.", long: "Devenir un expert reconnu dans son domaine." },
+                    { id: "car-4", name: "Reconnaissance", court: "Recevoir une reconnaissance appropriée pour ses efforts et ses contributions.", moyen: "Communiquer ses réussites et ses contributions à son équipe ou à ses supérieurs.", long: "Être reconnu pour ses compétences et ses réalisations." }
+                ]},
+                { id: "loisirs", name: "Loisirs", theme: "loisirs", subPillars: [
+                    { id: "loi-0", name: "Temps libre", court: "Consacrer du temps à ses loisirs pour se ressourcer pleinement.", moyen: "Planifier régulièrement des activités de loisirs.", long: "Intégrer les loisirs comme une partie essentielle de sa vie." },
+                    { id: "loi-1", name: "Passions", court: "Explorer et approfondir ses passions pour enrichir sa vie personnelle.", moyen: "Découvrir de nouvelles passions ou approfondir celles existantes.", long: "Vivre une vie riche en passions et en intérêts variés." },
+                    { id: "loi-2", name: "Détente", court: "Se détendre régulièrement pour réduire le stress et retrouver de l'énergie.", moyen: "Pratiquer des activités relaxantes régulièrement.", long: "Maintenir un niveau de stress bas grâce à des habitudes de détente." },
+                    { id: "loi-3", name: "Créativité", court: "Stimuler sa créativité pour découvrir de nouvelles perspectives et idées.", moyen: "Participer à des activités créatives régulièrement.", long: "Développer sa créativité comme une compétence clé." },
+                    { id: "loi-4", name: "Social", court: "Partager des moments de loisirs avec d'autres pour renforcer les liens sociaux.", moyen: "Organiser des activités sociales régulières.", long: "Avoir un réseau social fort et engagé." }
+                ]},
+                { id: "devperso", name: "Développement perso", theme: "devperso", subPillars: [
+                    { id: "dev-0", name: "Apprentissage", court: "Acquérir de nouvelles connaissances pour évoluer continuellement.", moyen: "Suivre des cours ou des formations pour apprendre de nouvelles compétences.", long: "Devenir un apprenant à vie." },
+                    { id: "dev-1", name: "Objectifs", court: "Définir et atteindre des objectifs clairs pour donner un sens à ses actions.", moyen: "Établir des objectifs SMART (spécifiques, mesurables, atteignables, réalistes, temporels).", long: "Atteindre ses objectifs de vie à long terme." },
+                    { id: "dev-2", name: "Confiance", court: "Renforcer sa confiance en soi pour affronter les défis avec assurance.", moyen: "Pratiquer l'auto-compassion et la reconnaissance de ses réussites.", long: "Avoir une confiance en soi inébranlable." },
+                    { id: "dev-3", name: "Résilience", court: "Développer sa résilience pour mieux rebondir après des épreuves.", moyen: "Apprendre des techniques de gestion du stress et de résilience.", long: "Devenir une personne résiliente face aux défis de la vie." },
+                    { id: "dev-4", name: "Clarté", court: "Clarifier ses priorités pour prendre des décisions alignées avec ses valeurs.", moyen: "Réfléchir régulièrement à ses valeurs et à ses priorités.", long: "Avoir une vision claire de sa vie et de ses objectifs." }
+                ]},
+                { id: "relations", name: "Relations sociales", theme: "relations", subPillars: [
+                    { id: "rel-0", name: "Amis", court: "Entretenir des amitiés sincères pour bâtir un réseau de soutien solide.", moyen: "Prendre régulièrement des nouvelles de ses amis.", long: "Avoir des amitiés durables et significatives." },
+                    { id: "rel-1", name: "Réseau", court: "Élargir son réseau relationnel pour ouvrir de nouvelles opportunités.", moyen: "Participer à des événements de réseautage ou rejoindre des groupes d'intérêt.", long: "Avoir un réseau relationnel diversifié et enrichissant." },
+                    { id: "rel-2", name: "Écoute", court: "Pratiquer une écoute active pour mieux comprendre les autres.", moyen: "Développer ses compétences en communication et en écoute active.", long: "Être reconnu comme un interlocuteur attentif et empathique." },
+                    { id: "rel-3", name: "Partage", court: "Partager des expériences positives pour renforcer les liens humains.", moyen: "Organiser des activités ou des sorties avec ses proches.", long: "Avoir des relations basées sur le partage et la solidarité." },
+                    { id: "rel-4", name: "Qualité", court: "Prioriser la qualité des relations plutôt que leur quantité pour vivre des interactions profondes.", moyen: "Investir du temps dans les relations importantes.", long: "Avoir des relations profondes et épanouissantes." }
+                ]},
+                { id: "cadrevie", name: "Cadre de vie", theme: "cadrevie", subPillars: [
+                    { id: "cad-0", name: "Logement", court: "Créer un espace de vie confortable et fonctionnel pour se sentir chez soi.", moyen: "Aménager son espace de vie de manière ergonomique.", long: "Avoir un logement qui reflète son style de vie et ses besoins." },
+                    { id: "cad-1", name: "Environnement", court: "Préserver un environnement sain et agréable pour améliorer son cadre de vie.", moyen: "Adopter des pratiques écologiques dans son quotidien.", long: "Vivre dans un environnement durable et respectueux de la nature." },
+                    { id: "cad-2", name: "Organisation", court: "Maintenir un espace bien rangé pour gagner en efficacité et sérénité.", moyen: "Mettre en place des systèmes d'organisation pour son espace de vie.", long: "Avoir un espace de vie toujours bien organisé." },
+                    { id: "cad-3", name: "Confort", court: "Optimiser son confort domestique pour se sentir détendu chez soi.", moyen: "Investir dans des éléments de confort pour son logement.", long: "Avoir un espace de vie confortable et accueillant." },
+                    { id: "cad-4", name: "Esthétique", court: "Embellir son espace de vie pour refléter sa personnalité et son style.", moyen: "Décorer son espace de vie selon ses goûts.", long: "Avoir un espace de vie esthétiquement plaisant et personnalisé." }
+                ]}
+            ];
 
-        function afficherPiliersEtSousPiliers() {
-            const sectionPiliers = document.getElementById('piliers');
-            defaultPillarsData.forEach((pilier, indexPilier) => {
-                const divPilier = document.createElement('div');
-                divPilier.classList.add('pilier');
-                divPilier.setAttribute('data-theme', pilier.theme);
-                divPilier.innerHTML = `<h2>${pilier.name}</h2>`;
+             // Liste plate des piliers principaux pour l'UI (ex: dropdown)
+             // Assure-toi que les IDs ici correspondent aux IDs dans defaultPillarsData
+             const DEFAULT_PILLARS_UI = defaultPillarsData.map(p => ({
+                 id: p.id, // Utilise l'ID de la nouvelle structure
+                 name: p.name,
+                 colorVar: `--pillar-color-${p.id}` // Référence la variable CSS par ID
+             }));
 
-                pilier.subPillars.forEach((subPilier, indexSousPilier) => {
-                    const divSousPilier = document.createElement('div');
-                    divSousPilier.classList.add('sous-pilier');
-                    divSousPilier.innerHTML = `
-                        <h3>${subPilier.name}</h3>
-                        <div class="objectif">
-                            <input type="text" value="${subPilier.court}" ondblclick="ouvrirPopup('court', ${indexPilier}, ${indexSousPilier})">
-                        </div>
-                        <div class="objectif">
-                            <input type="text" value="${subPilier.moyen}" ondblclick="ouvrirPopup('moyen', ${indexPilier}, ${indexSousPilier})">
-                        </div>
-                        <div class="objectif">
-                            <input type="text" value="${subPilier.long}" ondblclick="ouvrirPopup('long', ${indexPilier}, ${indexSousPilier})">
-                        </div>
-                    `;
-                    divPilier.appendChild(divSousPilier);
-                });
+            // --- Application State Management ---
+            const Store = {
+                appData: {
+                    pillars: JSON.parse(JSON.stringify(DEFAULT_PILLARS_UI)), // Utilise la version UI plate ici
+                    goals: [],
+                    journal: [],
+                    settings: { theme: 'light' }
+                },
 
-                sectionPiliers.appendChild(divPilier);
-            });
-        }
-
-        function ouvrirPopup(terme, indexPilier, indexSousPilier) {
-            currentObjectif = { terme, indexPilier, indexSousPilier };
-            const subPilier = defaultPillarsData[indexPilier].subPillars[indexSousPilier];
-            document.getElementById('popup-text').value = subPilier[terme];
-            document.getElementById('popup').style.display = 'block';
-        }
-
-        function modifierObjectif() {
-            if (currentObjectif) {
-                const { terme, indexPilier, indexSousPilier } = currentObjectif;
-                const nouveauTexte = document.getElementById('popup-text').value;
-                defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = nouveauTexte;
-                localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
-                console.log("Objectif modifié :", defaultPillarsData[indexPilier].subPillars[indexSousPilier]);
-                fermerPopup();
-                location.reload();
-            }
-        }
-
-        function supprimerObjectif() {
-            if (currentObjectif) {
-                const { terme, indexPilier, indexSousPilier } = currentObjectif;
-                defaultPillarsData[indexPilier].subPillars[indexSousPilier][terme] = "";
-                localStorage.setItem('piliers', JSON.stringify(defaultPillarsData));
-                console.log("Objectif supprimé :", defaultPillarsData[indexPilier].subPillars[indexSousPilier]);
-                fermerPopup();
-                location.reload();
-            }
-        }
-
-        function fermerPopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
-
-        window.onload = function() {
-            const piliersLocalStorage = localStorage.getItem('piliers');
-            if (piliersLocalStorage) {
-                const parsedData = JSON.parse(piliersLocalStorage);
-                console.log("Données récupérées du localStorage :", parsedData);
-                // Mettre à jour chaque pilier individuellement
-                parsedData.forEach((pilier, index) => {
-                    if (defaultPillarsData[index]) {
-                        defaultPillarsData[index] = pilier;
+                load() {
+                    const savedData = localStorage.getItem('piliersDeVieData');
+                    console.log('Store.load: Vérification localStorage...');
+                    if (savedData) {
+                        console.log('Store.load: Données trouvées dans localStorage.');
+                        try {
+                            const parsedData = JSON.parse(savedData);
+                            // IMPORTANT: Utilise DEFAULT_PILLARS_UI comme base pour les noms/couleurs
+                            // pour garder la cohérence avec ce que l'UI attend.
+                            this.appData = {
+                                pillars: DEFAULT_PILLARS_UI.map(dp => ({
+                                    ...dp, // Garde ID, Name, ColorVar de la version UI
+                                    // Si des données supplémentaires étaient sauvegardées pour ce pilier, les ajouter ici (aucun pour l'instant)
+                                    ...(parsedData.pillars?.find(p => p.id === dp.id) || {})
+                                })),
+                                goals: parsedData.goals || [],
+                                journal: parsedData.journal || [],
+                                settings: { theme: 'light', ...parsedData.settings }
+                            };
+                            console.log("Store.load: Données chargées depuis localStorage.");
+                        } catch (error) {
+                            console.error("Store.load: Erreur parsing localStorage:", error);
+                            UI.showToast("Erreur chargement données. Réinitialisation.", 'error');
+                            this.resetToDefaultsWithGoals(); // Fallback
+                        }
+                    } else {
+                        console.log('Store.load: Aucune donnée dans localStorage, appel de resetToDefaultsWithGoals.');
+                        this.resetToDefaultsWithGoals();
                     }
-                });
-            }
-            console.log("Données des piliers après fusion :", defaultPillarsData);
-            afficherPiliersEtSousPiliers();
-        }
+                     // Nettoyage/Vérification des données après chargement ou reset
+                     this.appData.goals = this.appData.goals.map(g => ({
+                         pillarId: g.pillarId || "unknown", // S'assurer qu'il y a un pillarId
+                         subPillarName: g.subPillarName || '', // Ajouter le champ subPillarName s'il manque
+                         measurable: g.measurable || '', notes: g.notes || '', status: g.status || 'pending',
+                         createdAt: g.createdAt || new Date().toISOString(), completedAt: g.completedAt || null, ...g
+                     }));
+                     console.log('Store.load: Nombre final objectifs après chargement/nettoyage:', this.appData.goals.length);
+                     console.log('Store.load: Données finales (2 premiers objectifs):', JSON.stringify(this.appData.goals.slice(0, 2)));
+                },
+
+                resetToDefaultsWithGoals() {
+                    console.log('Store.resetToDefaultsWithGoals: Exécution...');
+                    const now = new Date();
+                    const nowISO = now.toISOString();
+                    let defaultGoals = [];
+
+                    defaultPillarsData.forEach(pillar => {
+                        pillar.subPillars.forEach(subPillar => {
+                            // Créer un objectif pour chaque terme (court, moyen, long)
+                            ['court', 'moyen', 'long'].forEach(term => {
+                                if (subPillar[term]) { // Vérifier si le terme existe pour ce sous-pilier
+                                    defaultGoals.push({
+                                        id: Utils.generateId(),
+                                        pillarId: pillar.id, // ID du pilier principal
+                                        subPillarName: subPillar.name, // Nom du sous-pilier
+                                        // Titre complet (retiré le préfixe, sera ajouté par UI.createGoalElement)
+                                        title: subPillar[term], // Description = Titre principal
+                                        term: term, // 'short', 'medium', 'long'
+                                        dueDate: Utils.calculateDueDate(term, now),
+                                        measurable: "", // Laisser vide par défaut
+                                        notes: "", // Laisser vide par défaut
+                                        status: 'pending',
+                                        createdAt: nowISO,
+                                        completedAt: null,
+                                    });
+                                }
+                            });
+                        });
+                    });
+
+                    console.log('Store.resetToDefaultsWithGoals: Objectifs par défaut générés:', defaultGoals.length);
+                    this.appData = {
+                         pillars: JSON.parse(JSON.stringify(DEFAULT_PILLARS_UI)), // Utilise la structure UI pour les piliers
+                         goals: defaultGoals,
+                         journal: [],
+                         settings: { theme: 'light' }
+                    };
+                    console.log('Store.resetToDefaultsWithGoals: appData mis à jour, appel de save...');
+                    this.save();
+                },
+
+                // --- Le reste de Store (save, getters, setters) reste identique ---
+                save() { /* ... */ },
+                getState() { return this.appData; },
+                getPillars() { return this.appData.pillars; },
+                getGoals() { return this.appData.goals; },
+                getJournal() { return this.appData.journal; },
+                getSettings() { return this.appData.settings; },
+                getPillarById(id) { return this.appData.pillars.find(p => p.id === id); },
+                getGoalById(id) { return this.appData.goals.find(g => g.id === id); },
+                addGoal(goalData) { /* ... */ }, // N'a pas besoin de changer
+                updateGoal(goalId, updatedData) { /* ... */ }, // N'a pas besoin de changer
+                updateGoalStatus(goalId, status) { /* ... */ }, // N'a pas besoin de changer
+                deleteGoal(goalId) { /* ... */ }, // N'a pas besoin de changer
+                addJournalEntry(content) { /* ... */ }, // N'a pas besoin de changer
+                deleteJournalEntry(entryId) { /* ... */ }, // N'a pas besoin de changer
+                updateTheme(theme) { /* ... */ }, // N'a pas besoin de changer
+                importData(importedData) { /* ... */ } // Pourrait être amélioré pour gérer les anciens formats, mais gardons simple
+            };
+
+            // --- UI Manipulation & Rendering ---
+             const UI = {
+                 elements: {}, // Sera peuplé dans App.init
+
+                 // --- Les méthodes UI (init, renderAll, showView, theme, toast, getPillarColor/Name, renderPillarOptions etc.) ---
+                 // --- restent globalement les mêmes, SAUF createGoalElement et renderGoalsList (potentiellement) ---
+                 init() { /* ... */ },
+                 renderAllDynamicContent() { /* ... */ },
+                 showView(viewId) { /* ... */ },
+                 applyTheme(theme) { /* ... */ },
+                 toggleTheme() { /* ... */ },
+                 showToast(message, type = 'info', duration = 3000) { /* ... */ },
+                 getPillarColor(pillarId) {
+                    const pillar = Store.getPillarById(pillarId);
+                    // Utilise la variable CSS définie avec l'ID
+                    return pillar ? `var(--pillar-color-${pillar.id})` : 'var(--text-secondary)';
+                 },
+                 getPillarName(pillarId) { /* ... */ },
+                 renderPillarOptions() { /* ... */ }, // Utilise Store.getPillars() qui est la liste plate UI
+
+                 renderGoalsList() {
+                     const container = this.elements.goalsListContainer;
+                     if (!container) { console.error("UI.renderGoalsList: Container not found!"); return; }
+
+                     const goals = Store.getGoals();
+                     const pillars = Store.getPillars(); // Piliers principaux pour les sections
+                     console.log(`UI.renderGoalsList: Début rendu. Nombre d'objectifs trouvés: ${goals.length}`);
+
+                     container.innerHTML = ''; // Clear
+
+                     if (goals.length === 0) {
+                         console.log("UI.renderGoalsList: Aucun objectif trouvé, affichage message vide.");
+                         container.innerHTML = `<p class="text-center text-secondary mt-2">Aucun objectif défini. Ajoutez-en un !</p>`;
+                         return;
+                     }
+
+                     // Group goals by main pillar ID
+                     const goalsByPillar = {};
+                     pillars.forEach(p => goalsByPillar[p.id] = []);
+                     goals.forEach(goal => {
+                         if (goalsByPillar[goal.pillarId]) {
+                             goalsByPillar[goal.pillarId].push(goal);
+                         } else {
+                             console.warn("UI.renderGoalsList: Objectif trouvé avec pillarId inconnu:", goal.pillarId, goal.title);
+                             // Optionnel: Créer une catégorie "Inconnu" ?
+                             if (!goalsByPillar["unknown"]) goalsByPillar["unknown"] = [];
+                             goalsByPillar["unknown"].push(goal);
+                         }
+                     });
+                     console.log("UI.renderGoalsList: Objectifs groupés par pilier:", Object.keys(goalsByPillar).map(k => `${k}: ${goalsByPillar[k].length} objectifs`));
+
+                     let contentRendered = false;
+                     // Itérer sur les piliers UI pour l'ordre et les titres de section
+                     pillars.forEach(pillar => {
+                         const pillarGoals = (goalsByPillar[pillar.id] || []).sort(Utils.sortGoals); // Trier par statut/date
+                         console.log(`UI.renderGoalsList: Traitement Pilier ${pillar.id} (${pillar.name}), ${pillarGoals.length} objectif(s).`);
+
+                         if (pillarGoals.length > 0) {
+                             contentRendered = true;
+                             const section = document.createElement('div');
+                             section.className = 'pillar-goal-section card';
+                             section.id = `pillar-section-${pillar.id}`;
+                              section.innerHTML = `<h3 id="pillar-title-${pillar.id}">
+                                 <span class="pillar-dot" style="background-color: ${this.getPillarColor(pillar.id)};"></span>
+                                 ${Utils.escapeHtml(pillar.name)} (${pillarGoals.filter(g => g.status === 'pending').length} en cours)
+                                 </h3>`;
+                             const ul = document.createElement('ul');
+                             ul.className = 'goal-list';
+                             ul.dataset.pillarId = pillar.id;
+
+                             pillarGoals.forEach(goal => {
+                                 const goalElement = this.createGoalElement(goal); // createGoalElement gère l'affichage du sous-pilier
+                                 if (goalElement) {
+                                     ul.appendChild(goalElement);
+                                 } else {
+                                      console.error("UI.renderGoalsList: Echec création élément pour objectif:", goal);
+                                 }
+                             });
+                             section.appendChild(ul);
+                             container.appendChild(section);
+                         }
+                     });
+                     // Gérer la catégorie "Inconnu" si elle existe
+                      if (goalsByPillar["unknown"] && goalsByPillar["unknown"].length > 0) {
+                          contentRendered = true;
+                          const section = document.createElement('div');
+                          section.className = 'pillar-goal-section card';
+                          section.id = `pillar-section-unknown`;
+                          section.innerHTML = `<h3><span class="pillar-dot" style="background-color: var(--text-secondary);"></span>Autres Objectifs (Pilier Inconnu)</h3>`;
+                          const ul = document.createElement('ul');
+                          ul.className = 'goal-list';
+                          ul.dataset.pillarId = "unknown";
+                          goalsByPillar["unknown"].sort(Utils.sortGoals).forEach(goal => {
+                             const goalElement = this.createGoalElement(goal);
+                             if (goalElement) ul.appendChild(goalElement);
+                          });
+                          section.appendChild(ul);
+                          container.appendChild(section);
+                      }
+
+
+                     if (!contentRendered && goals.length > 0) {
+                         console.log("UI.renderGoalsList: Objectifs existent mais aucun n'a pu être affiché par pilier.");
+                         container.innerHTML = `<p class="text-center text-secondary mt-2">Impossible d'afficher les objectifs (problème de catégorie?).</p>`;
+                     }
+
+                      console.log("UI.renderGoalsList: Fin du rendu.");
+                 },
+
+                 createGoalElement(goal) {
+                    const template = this.elements.goalItemTemplate;
+                    if (!template || !template.content) { console.error("Goal item template not found!"); return null; }
+
+                    try {
+                        const clone = template.content.cloneNode(true);
+                        const listItem = clone.querySelector('.goal-item');
+                        const titleEl = clone.querySelector('.goal-title');
+                        const dateEl = clone.querySelector('.goal-due-date');
+                        const completeBtn = clone.querySelector('.complete-btn');
+                        const uncompleteBtn = clone.querySelector('.uncomplete-btn');
+
+                        if (!listItem || !titleEl || !dateEl || !completeBtn || !uncompleteBtn) { console.error("Elements missing in goal template clone"); return null; }
+
+                        listItem.dataset.goalId = goal.id;
+                        listItem.classList.toggle('completed', goal.status === 'completed');
+
+                        // Formatage du titre avec préfixe pour sous-pilier
+                        let titleContent = '';
+                        if (goal.subPillarName) {
+                            titleContent += `<span class="subpillar-prefix">${Utils.escapeHtml(goal.subPillarName)} :</span> `;
+                        }
+                        titleContent += Utils.escapeHtml(goal.title || "Objectif sans titre");
+                        titleEl.innerHTML = titleContent; // Utilise innerHTML pour le span
+
+                        dateEl.textContent = goal.status === 'pending'
+                            ? `Échéance: ${Utils.formatDate(goal.dueDate)}`
+                            : `Terminé: ${Utils.formatDate(goal.completedAt)}`;
+
+                        completeBtn.style.display = goal.status === 'pending' ? 'inline-flex' : 'none';
+                        uncompleteBtn.style.display = goal.status === 'completed' ? 'inline-flex' : 'none';
+
+                        return clone;
+                    } catch (error) {
+                        console.error("Error creating goal element:", error, "for goal:", goal);
+                        return null;
+                    }
+                 },
+
+                 // --- Le reste de UI (updateGoalElement, addGoalToList, etc.) reste identique ---
+                 updateGoalElement(goal) { /* ... (ajuster pour gérer innerHTML du titre si nécessaire) ... */ },
+                 addGoalToList(goal) { /* ... */ },
+                 removeGoalFromList(goalId) { /* ... */ },
+                 renderJournal() { /* ... */ },
+                 createJournalEntryElement(entry) { /* ... */ },
+                 addJournalEntryToList(entry) { /* ... */ },
+                 removeJournalEntryFromList(entryId) { /* ... */ },
+                 handleGoalSubmit(event) { /* ... (Ajouter subPillarName si on le capture dans le form, sinon il sera vide) ... */ },
+                 handleGoalAction(event) { /* ... */ },
+                 editGoal(goalId) { /* ... (le titre affiché incluera le sous-pilier, c'est ok) ... */ },
+                 deleteGoal(goalId) { /* ... */ },
+                 resetGoalForm() { /* ... */ },
+                 handleJournalSubmit(event) { /* ... */ },
+                 handleJournalAction(event) { /* ... */ },
+                 setLoadingState(isLoading, message = "Traitement...") { /* ... */ },
+                 updateStatusMessage(message, isError = false) { /* ... */ },
+                 exportData() { /* ... */ },
+                 handleImportFile(event) { /* ... */ },
+                 setupEventListeners() { /* ... */ }
+
+            };
+
+            // --- Utility Functions ---
+            const Utils = {
+                // --- Les fonctions Utils restent identiques ---
+                generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 9); },
+                escapeHtml(unsafe) { /* ... */ },
+                formatDate(dateString) { /* ... */ },
+                formatDateTime(dateString) { /* ... */ },
+                sortGoals(a, b) { /* ... */ },
+                calculateDueDate(term, baseDate = new Date()) { /* ... */ }
+            };
+
+            // --- Main Application Logic & Initialization ---
+            const App = {
+                 init() {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        // Populate UI.elements
+                        UI.elements = {
+                            app: document.getElementById('app'),
+                            content: document.getElementById('content'),
+                            navButtons: document.querySelectorAll('.nav-button'),
+                            views: document.querySelectorAll('.view'),
+                            themeToggle: document.getElementById('theme-toggle'),
+                            goalForm: document.getElementById('goal-form'),
+                            goalFormTitle: document.getElementById('goal-form-title'),
+                            goalFormSubmitText: document.getElementById('goal-form-submit-text'),
+                            cancelGoalFormButton: document.getElementById('cancel-goal-form'),
+                            goalPillarSelect: document.getElementById('goal-pillar-select'),
+                            goalsListContainer: document.getElementById('goals-list-container'),
+                            journalForm: document.getElementById('journal-form'),
+                            journalEntryInput: document.getElementById('journal-entry-input'),
+                            journalEntriesList: document.getElementById('journal-entries-list'),
+                            exportButton: document.getElementById('export-data-button'),
+                            importButton: document.getElementById('import-data-button'),
+                            importInput: document.getElementById('import-data-input'),
+                            importExportStatus: document.getElementById('import-export-status'),
+                            statusMessage: document.querySelector('#import-export-status .status-message'),
+                            loadingIndicator: document.querySelector('#import-export-status .loading-indicator'),
+                            toggleThemeButton: document.getElementById('toggle-theme-button'),
+                            toastContainer: document.getElementById('toast-container'),
+                            goalItemTemplate: document.getElementById('goal-item-template'),
+                            journalEntryTemplate: document.getElementById('journal-entry-template'),
+                        };
+                         if (!UI.elements.app || !UI.elements.content || !UI.elements.goalsListContainer) {
+                             console.error("Core application elements not found! Aborting initialization.");
+                             document.body.innerHTML = '<p style="padding: 20px; color: red; font-weight: bold;">Erreur critique: Impossible de charger l\'application.</p>';
+                             return;
+                         }
+                        UI.init(); // Call UI init now that elements are assigned
+                    });
+                },
+                registerServiceWorker() { /* ... */ }
+            };
+
+            // --- Start the application ---
+            App.init();
+
+            // --- Ré-inclure les corps des fonctions marquées /* ... */ ---
+            // (Copier-coller les implémentations depuis les blocs précédents)
+            // Exemple:
+            Store.save = function() { try { console.log('Store.save: Tentative...'); localStorage.setItem('piliersDeVieData', JSON.stringify(this.appData)); console.log("Store.save: Données sauvegardées."); } catch (error) { console.error("Store.save: Erreur:", error); UI.showToast("Erreur de sauvegarde.", 'error'); } };
+            Utils.escapeHtml = function(unsafe) { if (unsafe === null || unsafe === undefined) return ''; const str = unsafe.toString(); const match = /["'&<>]/; if (!match.exec(str)) return str; let esc, html = '', i = 0, last = 0; for (i = 0; i < str.length; i++) { switch (str.charCodeAt(i)) { case 34: esc = '"'; break; case 38: esc = '&'; break; case 39: esc = "'"; break; case 60: esc = '<'; break; case 62: esc = '>'; break; default: continue; } if (last !== i) html += str.substring(last, i); last = i + 1; html += esc; } return last !== i ? html + str.substring(last, i) : html; };
+            Utils.formatDate = function(dateString) { if (!dateString) return 'N/A'; try { const [y, m, d] = dateString.split('T')[0].split('-'); const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d))); return date.toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }); } catch (e) { console.error("Invalid date:", dateString, e); return 'Date invalide'; } };
+            Utils.formatDateTime = function(dateString) { if (!dateString) return 'N/A'; try { const date = new Date(dateString); return date.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }); } catch (e) { console.error("Invalid datetime:", dateString, e); return 'Date invalide'; } };
+            Utils.sortGoals = function(a, b) { if (a.status === 'pending' && b.status === 'completed') return -1; if (a.status === 'completed' && b.status === 'pending') return 1; if (a.status === 'pending') { return new Date(a.dueDate) - new Date(b.dueDate); } else { const dA = a.completedAt ? new Date(a.completedAt) : 0; const dB = b.completedAt ? new Date(b.completedAt) : 0; return dB - dA; } };
+            Utils.calculateDueDate = function(term, baseDate = new Date()) { let targetDate = new Date(baseDate); switch (term) { case 'short': targetDate.setMonth(targetDate.getMonth() + 2); break; case 'medium': targetDate.setMonth(targetDate.getMonth() + 6); break; case 'long': targetDate.setFullYear(targetDate.getFullYear() + 1, targetDate.getMonth() + 6); break; default: targetDate.setMonth(targetDate.getMonth() + 3); } const year = targetDate.getFullYear(); const month = (targetDate.getMonth() + 1).toString().padStart(2, '0'); const day = targetDate.getDate().toString().padStart(2, '0'); return `${year}-${month}-${day}`; };
+            App.registerServiceWorker = function() { window.addEventListener('load', () => { if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered:', reg.scope)).catch(err => console.error('SW registration failed:', err)); } }); };
+            // ... [AJOUTER ICI TOUTES LES AUTRES FONCTIONS MARQUÉES /* ... */] ...
+            // UI.init, UI.renderAllDynamicContent, UI.showView, UI.applyTheme, UI.toggleTheme, UI.showToast,
+            // UI.getPillarName, UI.renderPillarOptions, UI.updateGoalElement, UI.addGoalToList, UI.removeGoalFromList,
+            // UI.renderJournal, UI.createJournalEntryElement, UI.addJournalEntryToList, UI.removeJournalEntryFromList,
+            // UI.handleGoalSubmit, UI.handleGoalAction, UI.editGoal, UI.deleteGoal, UI.resetGoalForm,
+            // UI.handleJournalSubmit, UI.handleJournalAction, UI.setLoadingState, UI.updateStatusMessage,
+            // UI.exportData, UI.handleImportFile, UI.setupEventListeners
+            // Store.addGoal, Store.updateGoal, Store.updateGoalStatus, Store.deleteGoal, Store.addJournalEntry,
+            // Store.deleteJournalEntry, Store.updateTheme, Store.importData
+
+        })(); // End IIFE
     </script>
 </body>
 </html>
