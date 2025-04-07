@@ -1,0 +1,21 @@
+{
+  "name": "Piliers de Vie",
+  "short_name": "PiliersVie",
+  "description": "Gérez vos objectifs personnels selon 8 piliers de vie.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4A90E2",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png", // Créez cette icône (192x192 px)
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png", // Créez cette icône (512x512 px)
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
